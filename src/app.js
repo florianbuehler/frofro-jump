@@ -1,3 +1,5 @@
+import Player from './modules/player.js'
+
 var ua = navigator.userAgent;
 var isIE = ua.match('MSIE');
 var bTouch =
@@ -57,7 +59,7 @@ window.requestAnimFrame = (function () {
 
 var canvas = document.getElementById('canvas');
 if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
-ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
 var width = 422,
   height = 552;
@@ -74,11 +76,12 @@ var platforms = [],
   gravity = 0.2,
   animloop,
   flag = 0,
-  menuloop,
   broken = 0,
   dir,
   score = 0,
   firstRun = true;
+
+let menuLoop;
 
 //Base object
 var Base = function () {
@@ -115,61 +118,7 @@ var Base = function () {
 
 var base = new Base();
 
-//Player object
-var Player = function () {
-  this.vy = 11;
-  this.vx = 0;
-
-  this.isMovingLeft = false;
-  this.isMovingRight = false;
-  this.isDead = false;
-
-  this.width = 55;
-  this.height = 40;
-
-  //Sprite clipping
-  this.cx = 0;
-  this.cy = 0;
-  this.cwidth = 110;
-  this.cheight = 80;
-
-  this.dir = 'left';
-
-  this.x = width / 2 - this.width / 2;
-  this.y = height;
-
-  //Function to draw it
-  this.draw = function () {
-    try {
-      if (this.dir == 'right') this.cy = 121;
-      else if (this.dir == 'left') this.cy = 201;
-      else if (this.dir == 'right_land') this.cy = 289;
-      else if (this.dir == 'left_land') this.cy = 371;
-
-      ctx.drawImage(
-        image,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
-
-  this.jump = function () {
-    this.vy = -8;
-  };
-
-  this.jumpHigh = function () {
-    this.vy = -16;
-  };
-};
-
-player = new Player();
+player = new Player(width, height);
 
 //Platform class
 
@@ -321,10 +270,11 @@ var spring = function () {
 
 var Spring = new spring();
 
-function init() {
+window.init = function() {
   //Variables for the game
   var dir = 'left',
     jumpCount = 0;
+
 
   firstRun = false;
 
@@ -569,7 +519,7 @@ function init() {
     springCalc();
 
     playerCalc();
-    player.draw();
+    player.draw(ctx);
 
     base.draw();
 
@@ -590,7 +540,7 @@ function init() {
   showScore();
 }
 
-function reset() {
+window.reset = function () {
   hideGoMenu();
   showScore();
   player.isDead = false;
@@ -600,7 +550,7 @@ function reset() {
   score = 0;
 
   base = new Base();
-  player = new Player();
+  player = new Player(width, height);
   Spring = new spring();
   platform_broken_substitute = new Platform_broken_substitute();
 
@@ -748,7 +698,7 @@ function playerJump() {
   if (player.x > width) player.x = 0 - player.width;
   else if (player.x < 0 - player.width) player.x = width;
 
-  player.draw();
+  player.draw(ctx);
 }
 
 function update() {
