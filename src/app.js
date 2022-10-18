@@ -57,12 +57,12 @@ window.requestAnimFrame = (function () {
   );
 })();
 
-var canvas = document.getElementById('canvas');
+const canvas = document.getElementById('canvas');
 if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
 const ctx = canvas.getContext('2d');
 
-var width = 422,
-  height = 552;
+const width = 422;
+const height = 552;
 
 canvas.width = width;
 canvas.height = height;
@@ -84,11 +84,11 @@ var platforms = [],
 let menuLoop;
 
 //Base object
-var Base = function () {
+const Base = function () {
   this.height = 5;
   this.width = width;
 
-  //Sprite clipping
+  // sprite clipping
   this.cx = 0;
   this.cy = 614;
   this.cwidth = 100;
