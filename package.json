@@ -1,0 +1,13 @@
+{
+  "name": "frofro-jump",
+  "description": "A doodle jump interpretation.",
+  "version": "1.0.0",
+  "author": "Florian Bühler <florian-buehler@outlook.com>",
+  "license": "MIT",
+  "scripts": {
+    "develop": "live-server --open=./src"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
