@@ -5,9 +5,12 @@
   "author": "Florian Bühler <florian-buehler@outlook.com>",
   "license": "MIT",
   "scripts": {
-    "develop": "live-server --open=./src"
+    "develop": "live-server --open=./src",
+    "lint": "npx prettier --check ./src",
+    "fix-lint": "npx prettier --write ./src"
   },
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "live-server": "^1.2.2",
+    "prettier": "^2.7.1"
   }
 }

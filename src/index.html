@@ -1,50 +1,50 @@
 <!DOCTYPE html>
 <html lang="en-US">
-<head>
+  <head>
     <title>FroFro Jump</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap"
+      rel="stylesheet"
+    />
 
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="container">
-    <canvas id="canvas">
-        Aww, your browser doesn't support HTML5!
-    </canvas>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="canvas"> Aww, your browser doesn't support HTML5! </canvas>
 
-    <div id="mainMenu">
+      <div id="mainMenu">
         <h1>doodle jump</h1>
         <h3>using HTML5</h3>
 
         <p class="info">
-            use
-            <span class="key left">?</span>
-            <span class="key right">?</span>
-            to move and space to (re) start...
+          use
+          <span class="key left">?</span>
+          <span class="key right">?</span>
+          to move and space to (re) start...
         </p>
         <a class="button" href="javascript:init()">Play</a>
-    </div>
+      </div>
 
-    <div id="gameOverMenu">
+      <div id="gameOverMenu">
         <h1>game over!</h1>
         <h3 id="go_score">you scored 0 points</h3>
 
         <a class="button" href="javascript:reset()">Restart</a>
-    </div>
+      </div>
 
-    <img id="sprite" alt="" src="./assets/sprites.png"/>
+      <img id="sprite" alt="" src="./assets/sprites.png" />
 
-    <div id="scoreBoard">
+      <div id="scoreBoard">
         <p id="score">0</p>
+      </div>
     </div>
+    <div id="keys"></div>
 
-</div>
-<div id="keys"></div>
-
-<script type="text/javascript" src="app.js"></script>
-</body>
+    <script type="text/javascript" src="app.js"></script>
+  </body>
 </html>

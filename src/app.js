@@ -1,41 +1,62 @@
 var ua = navigator.userAgent;
-var isIE = ua.match("MSIE");
-var bTouch = (ua.indexOf("(iP")==-1 && ua.indexOf("Android")==-1 && ua.indexOf("BlackBerry")==-1 && ua.indexOf("HTC")==-1 && ua.indexOf("PlayBook")==-1 && ua.indexOf("webOS")==-1 && ua.indexOf("IEMobile")==-1 && ua.indexOf("Silk")==-1)?false:true;
+var isIE = ua.match('MSIE');
+var bTouch =
+  ua.indexOf('(iP') == -1 &&
+  ua.indexOf('Android') == -1 &&
+  ua.indexOf('BlackBerry') == -1 &&
+  ua.indexOf('HTC') == -1 &&
+  ua.indexOf('PlayBook') == -1 &&
+  ua.indexOf('webOS') == -1 &&
+  ua.indexOf('IEMobile') == -1 &&
+  ua.indexOf('Silk') == -1
+    ? false
+    : true;
 var bT = 0; // emulate keys pressed
 var bTlast = 0;
-var Dir = "left";
+var Dir = 'left';
 
-function mobile(id){ // TODO: pass keys as arrays (as could change)
+function mobile(id) {
+  // TODO: pass keys as arrays (as could change)
   var o = document.getElementById(id);
-  if(o){
-    if(bTouch){
-      o.innerHTML="<p><div style='border:1px solid red;width:60px;float:left;margin-left:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"left\";player.isMovingLeft = false;' ontouchstart='Dir = \"left\";player.isMovingLeft = true;' >&larr;</div> <div style='border:1px solid red;width:60px;float:right;margin-right:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"right\";player.isMovingRight = false;' ontouchstart='Dir = \"right\";player.isMovingRight = true;' >&rarr;</div></p>";
+  if (o) {
+    if (bTouch) {
+      o.innerHTML =
+        "<p><div style='border:1px solid red;width:60px;float:left;margin-left:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"left\";player.isMovingLeft = false;' ontouchstart='Dir = \"left\";player.isMovingLeft = true;' >&larr;</div> <div style='border:1px solid red;width:60px;float:right;margin-right:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"right\";player.isMovingRight = false;' ontouchstart='Dir = \"right\";player.isMovingRight = true;' >&rarr;</div></p>";
 
-      document.body.addEventListener('touchmove',function(event){event.preventDefault();});
-      setTimeout(function(){window.scrollTo(0, 1);}, 1);
+      document.body.addEventListener('touchmove', function (event) {
+        event.preventDefault();
+      });
+      setTimeout(function () {
+        window.scrollTo(0, 1);
+      }, 1);
     }
   }
 }
 
-
-if ( !Array.prototype.forEach ) {
-  Array.prototype.forEach = function(fn, scope) {
-    for(var i = 0, len = this.length; i < len; ++i) {
+if (!Array.prototype.forEach) {
+  Array.prototype.forEach = function (fn, scope) {
+    for (var i = 0, len = this.length; i < len; ++i) {
       fn.call(scope, this[i], i, this);
     }
-  }
+  };
 }
 
 // RequestAnimFrame: a browser API for getting smooth animations
-window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-    function(callback) {
+window.requestAnimFrame = (function () {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (callback) {
       window.setTimeout(callback, 1000 / 60);
-    };
+    }
+  );
 })();
 
 var canvas = document.getElementById('canvas');
-if(navigator.userAgent.match("MSIE"))G_vmlCanvasManager.initElement(canvas);
+if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
 ctx = canvas.getContext('2d');
 
 var width = 422,
@@ -46,17 +67,21 @@ canvas.height = height;
 
 //Variables for game
 var platforms = [],
-  image = document.getElementById("sprite"),
-  player, platformCount = 10,
+  image = document.getElementById('sprite'),
+  player,
+  platformCount = 10,
   position = 0,
   gravity = 0.2,
   animloop,
   flag = 0,
-  menuloop, broken = 0,
-  dir, score = 0, firstRun = true;
+  menuloop,
+  broken = 0,
+  dir,
+  score = 0,
+  firstRun = true;
 
 //Base object
-var Base = function() {
+var Base = function () {
   this.height = 5;
   this.width = width;
 
@@ -71,9 +96,19 @@ var Base = function() {
   this.x = 0;
   this.y = height - this.height;
 
-  this.draw = function() {
+  this.draw = function () {
     try {
-      ctx.drawImage(image, this.cx, this.cy, this.cwidth, this.cheight, this.x, this.y, this.width, this.height);
+      ctx.drawImage(
+        image,
+        this.cx,
+        this.cy,
+        this.cwidth,
+        this.cheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     } catch (e) {}
   };
 };
@@ -81,7 +116,7 @@ var Base = function() {
 var base = new Base();
 
 //Player object
-var Player = function() {
+var Player = function () {
   this.vy = 11;
   this.vx = 0;
 
@@ -98,31 +133,40 @@ var Player = function() {
   this.cwidth = 110;
   this.cheight = 80;
 
-  this.dir = "left";
+  this.dir = 'left';
 
   this.x = width / 2 - this.width / 2;
   this.y = height;
 
   //Function to draw it
-  this.draw = function() {
+  this.draw = function () {
     try {
-      if (this.dir == "right") this.cy = 121;
-      else if (this.dir == "left") this.cy = 201;
-      else if (this.dir == "right_land") this.cy = 289;
-      else if (this.dir == "left_land") this.cy = 371;
+      if (this.dir == 'right') this.cy = 121;
+      else if (this.dir == 'left') this.cy = 201;
+      else if (this.dir == 'right_land') this.cy = 289;
+      else if (this.dir == 'left_land') this.cy = 371;
 
-      ctx.drawImage(image, this.cx, this.cy, this.cwidth, this.cheight, this.x, this.y, this.width, this.height);
+      ctx.drawImage(
+        image,
+        this.cx,
+        this.cy,
+        this.cwidth,
+        this.cheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     } catch (e) {}
   };
 
-  this.jump = function() {
+  this.jump = function () {
     this.vy = -8;
   };
 
-  this.jumpHigh = function() {
+  this.jumpHigh = function () {
     this.vy = -16;
   };
-
 };
 
 player = new Player();
@@ -136,7 +180,7 @@ function Platform() {
   this.x = Math.random() * (width - this.width);
   this.y = position;
 
-  position += (height / platformCount);
+  position += height / platformCount;
 
   this.flag = 0;
   this.state = 0;
@@ -148,9 +192,8 @@ function Platform() {
   this.cheight = 31;
 
   //Function to draw it
-  this.draw = function() {
+  this.draw = function () {
     try {
-
       if (this.type == 1) this.cy = 0;
       else if (this.type == 2) this.cy = 61;
       else if (this.type == 3 && this.flag === 0) this.cy = 31;
@@ -158,7 +201,17 @@ function Platform() {
       else if (this.type == 4 && this.state === 0) this.cy = 90;
       else if (this.type == 4 && this.state == 1) this.cy = 1000;
 
-      ctx.drawImage(image, this.cx, this.cy, this.cwidth, this.cheight, this.x, this.y, this.width, this.height);
+      ctx.drawImage(
+        image,
+        this.cx,
+        this.cy,
+        this.cwidth,
+        this.cheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     } catch (e) {}
   };
 
@@ -194,7 +247,7 @@ for (var i = 0; i < platformCount; i++) {
 }
 
 //Broken platform object
-var Platform_broken_substitute = function() {
+var Platform_broken_substitute = function () {
   this.height = 30;
   this.width = 70;
 
@@ -209,9 +262,20 @@ var Platform_broken_substitute = function() {
 
   this.appearance = false;
 
-  this.draw = function() {
+  this.draw = function () {
     try {
-      if (this.appearance === true) ctx.drawImage(image, this.cx, this.cy, this.cwidth, this.cheight, this.x, this.y, this.width, this.height);
+      if (this.appearance === true)
+        ctx.drawImage(
+          image,
+          this.cx,
+          this.cy,
+          this.cwidth,
+          this.cheight,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
       else return;
     } catch (e) {}
   };
@@ -220,7 +284,7 @@ var Platform_broken_substitute = function() {
 var platform_broken_substitute = new Platform_broken_substitute();
 
 //Spring Class
-var spring = function() {
+var spring = function () {
   this.x = 0;
   this.y = 0;
 
@@ -235,12 +299,22 @@ var spring = function() {
 
   this.state = 0;
 
-  this.draw = function() {
+  this.draw = function () {
     try {
       if (this.state === 0) this.cy = 445;
       else if (this.state == 1) this.cy = 501;
 
-      ctx.drawImage(image, this.cx, this.cy, this.cwidth, this.cheight, this.x, this.y, this.width, this.height);
+      ctx.drawImage(
+        image,
+        this.cx,
+        this.cy,
+        this.cwidth,
+        this.cheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     } catch (e) {}
   };
 };
@@ -249,7 +323,7 @@ var Spring = new spring();
 
 function init() {
   //Variables for the game
-  var	dir = "left",
+  var dir = 'left',
     jumpCount = 0;
 
   firstRun = false;
@@ -263,45 +337,42 @@ function init() {
   //Player related calculations and functions
 
   function playerCalc() {
+    if (bTouch) dir = Dir;
 
-    if(bTouch)dir = Dir;
-
-    if (dir == "left") {
-      player.dir = "left";
-      if (player.vy < -7 && player.vy > -15) player.dir = "left_land";
-    } else if (dir == "right") {
-      player.dir = "right";
-      if (player.vy < -7 && player.vy > -15) player.dir = "right_land";
+    if (dir == 'left') {
+      player.dir = 'left';
+      if (player.vy < -7 && player.vy > -15) player.dir = 'left_land';
+    } else if (dir == 'right') {
+      player.dir = 'right';
+      if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
     }
 
     //Adding keyboard controls
-    document.onkeydown = function(e) {
-      var key = (isIE)?event.keyCode:e.keyCode;
+    document.onkeydown = function (e) {
+      var key = isIE ? event.keyCode : e.keyCode;
 
       if (key == 37) {
-        dir = "left";
+        dir = 'left';
         player.isMovingLeft = true;
       } else if (key == 39) {
-        dir = "right";
+        dir = 'right';
         player.isMovingRight = true;
       }
 
-      if(key == 32) {
-        if(firstRun === true)
-          init();
-        else
-          reset();
+      if (key == 32) {
+        if (firstRun === true) init();
+        else reset();
       }
     };
 
-    document.onkeyup = function(e) {
-      var key = (isIE)?event.keyCode:e.keyCode;
+    document.onkeyup = function (e) {
+      var key = isIE ? event.keyCode : e.keyCode;
 
       if (key == 37) {
-        dir = "left";
+        dir = 'left';
         player.isMovingLeft = false;
       } else if (key == 39) {
-        dir = "right";
+        dir = 'right';
         player.isMovingRight = false;
       }
     };
@@ -324,33 +395,31 @@ function init() {
     }
 
     // Speed limits!
-    if(player.vx > 8)
-      player.vx = 8;
-    else if(player.vx < -8)
-      player.vx = -8;
+    if (player.vx > 8) player.vx = 8;
+    else if (player.vx < -8) player.vx = -8;
 
     //console.log(player.vx);
 
     //Jump the player when it hits the base
-    if ((player.y + player.height) > base.y && base.y < height) player.jump();
+    if (player.y + player.height > base.y && base.y < height) player.jump();
 
     //Gameover if it hits the bottom
-    if (base.y > height && (player.y + player.height) > height && player.isDead != "lol") player.isDead = true;
+    if (base.y > height && player.y + player.height > height && player.isDead != 'lol')
+      player.isDead = true;
 
     //Make the player move through walls
     if (player.x > width) player.x = 0 - player.width;
     else if (player.x < 0 - player.width) player.x = width;
 
     //Movement of player affected by gravity
-    if (player.y >= (height / 2) - (player.height / 2)) {
+    if (player.y >= height / 2 - player.height / 2) {
       player.y += player.vy;
       player.vy += gravity;
     }
 
     //When the player reaches half height, move the platforms to create the illusion of scrolling and recreate the platforms that are out of viewport...
     else {
-      platforms.forEach(function(p, i) {
-
+      platforms.forEach(function (p, i) {
         if (player.vy < 0) {
           p.y -= player.vy;
         }
@@ -359,7 +428,6 @@ function init() {
           platforms[i] = new Platform();
           platforms[i].y = p.y - height;
         }
-
       });
 
       base.y -= player.vy;
@@ -403,7 +471,7 @@ function init() {
   function platformCalc() {
     var subs = platform_broken_substitute;
 
-    platforms.forEach(function(p, i) {
+    platforms.forEach(function (p, i) {
       if (p.type == 2) {
         if (p.x < 0 || p.x + p.width > width) p.vx *= -1;
 
@@ -431,9 +499,15 @@ function init() {
 
   function collides() {
     //Platforms
-    platforms.forEach(function(p, i) {
-      if (player.vy > 0 && p.state === 0 && (player.x + 15 < p.x + p.width) && (player.x + player.width - 15 > p.x) && (player.y + player.height > p.y) && (player.y + player.height < p.y + p.height)) {
-
+    platforms.forEach(function (p, i) {
+      if (
+        player.vy > 0 &&
+        p.state === 0 &&
+        player.x + 15 < p.x + p.width &&
+        player.x + player.width - 15 > p.x &&
+        player.y + player.height > p.y &&
+        player.y + player.height < p.y + p.height
+      ) {
         if (p.type == 3 && p.flag === 0) {
           p.flag = 1;
           jumpCount = 0;
@@ -450,35 +524,39 @@ function init() {
 
     //Springs
     var s = Spring;
-    if (player.vy > 0 && (s.state === 0) && (player.x + 15 < s.x + s.width) && (player.x + player.width - 15 > s.x) && (player.y + player.height > s.y) && (player.y + player.height < s.y + s.height)) {
+    if (
+      player.vy > 0 &&
+      s.state === 0 &&
+      player.x + 15 < s.x + s.width &&
+      player.x + player.width - 15 > s.x &&
+      player.y + player.height > s.y &&
+      player.y + player.height < s.y + s.height
+    ) {
       s.state = 1;
       player.jumpHigh();
     }
-
   }
 
   function updateScore() {
-    var scoreText = document.getElementById("score");
+    var scoreText = document.getElementById('score');
     scoreText.innerHTML = score;
   }
 
   function gameOver() {
-    platforms.forEach(function(p, i) {
+    platforms.forEach(function (p, i) {
       p.y -= 12;
     });
 
-    if(player.y > height/2 && flag === 0) {
+    if (player.y > height / 2 && flag === 0) {
       player.y -= 8;
       player.vy = 0;
-    }
-    else if(player.y < height / 2) flag = 1;
-    else if(player.y + player.height > height) {
+    } else if (player.y < height / 2) flag = 1;
+    else if (player.y + player.height > height) {
       showGoMenu();
       hideScore();
-      player.isDead = "lol";
+      player.isDead = 'lol';
 
       // pf end of game here...
-
     }
   }
 
@@ -498,8 +576,10 @@ function init() {
     updateScore();
   }
 
-  menuLoop = function(){return;};
-  animloop = function() {
+  menuLoop = function () {
+    return;
+  };
+  animloop = function () {
     update();
     requestAnimFrame(animloop);
   };
@@ -532,95 +612,114 @@ function reset() {
 
 //Hides the menu
 function hideMenu() {
-  var menu = document.getElementById("mainMenu");
+  var menu = document.getElementById('mainMenu');
   menu.style.zIndex = -1;
-  if(navigator.userAgent.toLowerCase().indexOf("firefox") != -1 && navigator.userAgent.toLowerCase().indexOf("android") != -1)menu.style.display="none";// *ff
+  if (
+    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
+    navigator.userAgent.toLowerCase().indexOf('android') != -1
+  )
+    menu.style.display = 'none'; // *ff
 }
 
 //Shows the game over menu
 function showGoMenu() {
-  var menu = document.getElementById("gameOverMenu");
+  var menu = document.getElementById('gameOverMenu');
   menu.style.zIndex = 1;
-  menu.style.visibility = "visible";
-  if(navigator.userAgent.toLowerCase().indexOf("firefox") != -1 && navigator.userAgent.toLowerCase().indexOf("android") != -1)menu.style.display="block";// *ff
-  var scoreText = document.getElementById("go_score");
-  scoreText.innerHTML = "You scored " + score + " points!";
+  menu.style.visibility = 'visible';
+  if (
+    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
+    navigator.userAgent.toLowerCase().indexOf('android') != -1
+  )
+    menu.style.display = 'block'; // *ff
+  var scoreText = document.getElementById('go_score');
+  scoreText.innerHTML = 'You scored ' + score + ' points!';
 }
 
 //Hides the game over menu
 function hideGoMenu() {
-  var menu = document.getElementById("gameOverMenu");
+  var menu = document.getElementById('gameOverMenu');
   menu.style.zIndex = -1;
-  menu.style.visibility = "hidden";
-  if(navigator.userAgent.toLowerCase().indexOf("firefox") != -1 && navigator.userAgent.toLowerCase().indexOf("android") != -1)menu.style.display="none";// *ff
+  menu.style.visibility = 'hidden';
+  if (
+    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
+    navigator.userAgent.toLowerCase().indexOf('android') != -1
+  )
+    menu.style.display = 'none'; // *ff
 }
 
 //Show ScoreBoard
 function showScore() {
-  var menu = document.getElementById("scoreBoard");
+  var menu = document.getElementById('scoreBoard');
   menu.style.zIndex = 1;
-  if(navigator.userAgent.toLowerCase().indexOf("firefox") != -1 && navigator.userAgent.toLowerCase().indexOf("android") != -1)menu.style.display="block";// *ff
+  if (
+    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
+    navigator.userAgent.toLowerCase().indexOf('android') != -1
+  )
+    menu.style.display = 'block'; // *ff
 }
 
 //Hide ScoreBoard
 function hideScore() {
-  var menu = document.getElementById("scoreBoard");
+  var menu = document.getElementById('scoreBoard');
   menu.style.zIndex = -1;
-  if(navigator.userAgent.toLowerCase().indexOf("firefox") != -1 && navigator.userAgent.toLowerCase().indexOf("android") != -1)menu.style.display="none";// *ff
+  if (
+    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
+    navigator.userAgent.toLowerCase().indexOf('android') != -1
+  )
+    menu.style.display = 'none'; // *ff
 }
 
 function playerJump() {
-
-  if(bTouch)dir = Dir;
+  if (bTouch) dir = Dir;
 
   player.y += player.vy;
   player.vy += gravity;
 
-  if (player.vy > 0 &&
-    (player.x + 15 < 260) &&
-    (player.x + player.width - 15 > 155) &&
-    (player.y + player.height > 475) &&
-    (player.y + player.height < 500))
+  if (
+    player.vy > 0 &&
+    player.x + 15 < 260 &&
+    player.x + player.width - 15 > 155 &&
+    player.y + player.height > 475 &&
+    player.y + player.height < 500
+  )
     player.jump();
 
-  if (dir == "left") {
-    player.dir = "left";
-    if (player.vy < -7 && player.vy > -15) player.dir = "left_land";
-  } else if (dir == "right") {
-    player.dir = "right";
-    if (player.vy < -7 && player.vy > -15) player.dir = "right_land";
+  if (dir == 'left') {
+    player.dir = 'left';
+    if (player.vy < -7 && player.vy > -15) player.dir = 'left_land';
+  } else if (dir == 'right') {
+    player.dir = 'right';
+    if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
   }
 
   //Adding keyboard controls
-  document.onkeydown = function(e) {
-    var key = (isIE)?event.keyCode:e.keyCode;
+  document.onkeydown = function (e) {
+    var key = isIE ? event.keyCode : e.keyCode;
 
     if (key == 37) {
-      dir = "left";
+      dir = 'left';
       player.isMovingLeft = true;
     } else if (key == 39) {
-      dir = "right";
+      dir = 'right';
       player.isMovingRight = true;
     }
 
-    if(key == 32) {
-      if(firstRun === true) {
+    if (key == 32) {
+      if (firstRun === true) {
         init();
         firstRun = false;
-      }
-      else
-        reset();
+      } else reset();
     }
   };
 
-  document.onkeyup = function(e) {
-    var key = (isIE)?event.keyCode:e.keyCode;
+  document.onkeyup = function (e) {
+    var key = isIE ? event.keyCode : e.keyCode;
 
     if (key == 37) {
-      dir = "left";
+      dir = 'left';
       player.isMovingLeft = false;
     } else if (key == 39) {
-      dir = "right";
+      dir = 'right';
       player.isMovingRight = false;
     }
   };
@@ -643,7 +742,7 @@ function playerJump() {
   }
 
   //Jump the player when it hits the base
-  if ((player.y + player.height) > base.y && base.y < height) player.jump();
+  if (player.y + player.height > base.y && base.y < height) player.jump();
 
   //Make the player move through walls
   if (player.x > width) player.x = 0 - player.width;
@@ -657,7 +756,7 @@ function update() {
   playerJump();
 }
 
-menuLoop = function() {
+menuLoop = function () {
   update();
   requestAnimFrame(menuLoop);
 };

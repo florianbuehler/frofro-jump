@@ -8,7 +8,8 @@ div {
 }
 
 body {
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   font-family: 'Gloria Hallelujah', cursive;
 }
 
@@ -45,9 +46,12 @@ canvas {
   margin: 0 0 0 5px;
 }
 
-img {display: none}
+img {
+  display: none;
+}
 
-#mainMenu, #gameOverMenu {
+#mainMenu,
+#gameOverMenu {
   height: 100%;
   width: 100%;
   text-align: center;
@@ -61,7 +65,11 @@ img {display: none}
   visibility: hidden;
 }
 
-h2, h3, h1 {font-weight: normal}
+h2,
+h3,
+h1 {
+  font-weight: normal;
+}
 h1 {
   font-size: 60px;
   color: #5a5816;
@@ -69,15 +77,21 @@ h1 {
   margin: 0;
 }
 
-h3 {text-align: right; margin: -10px 20px 0 0; color: #5e96be}
-h3 a {color: #5a5816}
+h3 {
+  text-align: right;
+  margin: -10px 20px 0 0;
+  color: #5e96be;
+}
+h3 a {
+  color: #5a5816;
+}
 
 .button {
   width: 105px;
   height: 31px;
   background: url(./assets/sprites.png) 0 0 no-repeat;
   display: block;
-  color:  #000;
+  color: #000;
   font-size: 12px;
   line-height: 31px;
   text-decoration: none;
@@ -87,7 +101,13 @@ h3 a {color: #5a5816}
   margin-left: -53px;
 }
 
-.info {position: absolute; right: 20px; bottom: 00px; margin: 0; color: green}
+.info {
+  position: absolute;
+  right: 20px;
+  bottom: 00px;
+  margin: 0;
+  color: green;
+}
 
 .info .key {
   width: 16px;
@@ -97,5 +117,9 @@ h3 a {color: #5a5816}
   display: inline-block;
 }
 
-.info .key.left {background-position: -92px -621px;}
-.info .key.right {background-position: -92px -641px;}
+.info .key.left {
+  background-position: -92px -621px;
+}
+.info .key.right {
+  background-position: -92px -641px;
+}
