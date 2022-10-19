@@ -1,4 +1,5 @@
-import Base from './modules/base.js'
+import Base from './modules/base.js';
+import Platform from './modules/platform.js';
 import Player from './modules/player.js';
 import Spring from './modules/spring.js';
 
@@ -66,12 +67,15 @@ const ctx = canvas.getContext('2d');
 window.config = {
   width: 422,
   height: 552,
-
+  platformCount: 10,
   sprite: document.getElementById('sprite')
 };
 
-const width = 422;
-const height = 552;
+window.gameState = {
+  position: 0,
+  broken: 0,
+  score: 0
+};
 
 canvas.width = window.config.width;
 canvas.height = window.config.height;
@@ -80,14 +84,10 @@ canvas.height = window.config.height;
 var platforms = [],
   image = document.getElementById('sprite'),
   player,
-  platformCount = 10,
-  position = 0,
   gravity = 0.2,
   animloop,
   flag = 0,
-  broken = 0,
   dir,
-  score = 0,
   firstRun = true;
 
 let menuLoop;
@@ -98,76 +98,7 @@ player = new Player();
 
 //Platform class
 
-function Platform() {
-  this.width = 70;
-  this.height = 17;
-
-  this.x = Math.random() * (width - this.width);
-  this.y = position;
-
-  position += height / platformCount;
-
-  this.flag = 0;
-  this.state = 0;
-
-  //Sprite clipping
-  this.cx = 0;
-  this.cy = 0;
-  this.cwidth = 105;
-  this.cheight = 31;
-
-  //Function to draw it
-  this.draw = function () {
-    try {
-      if (this.type == 1) this.cy = 0;
-      else if (this.type == 2) this.cy = 61;
-      else if (this.type == 3 && this.flag === 0) this.cy = 31;
-      else if (this.type == 3 && this.flag == 1) this.cy = 1000;
-      else if (this.type == 4 && this.state === 0) this.cy = 90;
-      else if (this.type == 4 && this.state == 1) this.cy = 1000;
-
-      ctx.drawImage(
-        image,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
-
-  //Platform types
-  //1: Normal
-  //2: Moving
-  //3: Breakable (Go through)
-  //4: Vanishable
-  //Setting the probability of which type of platforms should be shown at what score
-  if (score >= 5000) this.types = [2, 3, 3, 3, 4, 4, 4, 4];
-  else if (score >= 2000 && score < 5000) this.types = [2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
-  else if (score >= 1000 && score < 2000) this.types = [2, 2, 2, 3, 3, 3, 3, 3];
-  else if (score >= 500 && score < 1000) this.types = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3];
-  else if (score >= 100 && score < 500) this.types = [1, 1, 1, 1, 2, 2];
-  else this.types = [1];
-
-  this.type = this.types[Math.floor(Math.random() * this.types.length)];
-
-  //We can't have two consecutive breakable platforms otherwise it will be impossible to reach another platform sometimes!
-  if (this.type == 3 && broken < 1) {
-    broken++;
-  } else if (this.type == 3 && broken >= 1) {
-    this.type = 1;
-    broken = 0;
-  }
-
-  this.moved = 0;
-  this.vx = 1;
-}
-
-for (var i = 0; i < platformCount; i++) {
+for (var i = 0; i < window.config.platformCount; i++) {
   platforms.push(new Platform());
 }
 
@@ -217,13 +148,9 @@ window.init = function () {
 
   firstRun = false;
 
-  //Function for clearing canvas in each consecutive frame
-
   function paintCanvas() {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, window.config.width, window.config.height);
   }
-
-  //Player related calculations and functions
 
   function playerCalc() {
     if (bTouch) dir = Dir;
@@ -287,21 +214,23 @@ window.init = function () {
     if (player.vx > 8) player.vx = 8;
     else if (player.vx < -8) player.vx = -8;
 
-    //console.log(player.vx);
-
     //Jump the player when it hits the base
-    if (player.y + player.height > base.y && base.y < height) player.jump();
+    if (player.y + player.height > base.y && base.y < window.config.height) player.jump();
 
     //Gameover if it hits the bottom
-    if (base.y > height && player.y + player.height > height && player.isDead != 'lol')
+    if (
+      base.y > window.config.height &&
+      player.y + player.height > window.config.height &&
+      player.isDead != 'lol'
+    )
       player.isDead = true;
 
     //Make the player move through walls
-    if (player.x > width) player.x = 0 - player.width;
-    else if (player.x < 0 - player.width) player.x = width;
+    if (player.x > window.config.width) player.x = 0 - player.width;
+    else if (player.x < 0 - player.width) player.x = window.config.width;
 
     //Movement of player affected by gravity
-    if (player.y >= height / 2 - player.height / 2) {
+    if (player.y >= window.config.height / 2 - player.height / 2) {
       player.y += player.vy;
       player.vy += gravity;
     }
@@ -313,9 +242,9 @@ window.init = function () {
           p.y -= player.vy;
         }
 
-        if (p.y > height) {
+        if (p.y > window.config.height) {
           platforms[i] = new Platform();
-          platforms[i].y = p.y - height;
+          platforms[i].y = p.y - window.config.height;
         }
       });
 
@@ -327,7 +256,7 @@ window.init = function () {
         player.vy += gravity;
       }
 
-      score++;
+      window.gameState.score++;
     }
 
     //Make the player jump when it collides with platforms
@@ -346,7 +275,7 @@ window.init = function () {
       s.x = p.x + p.width / 2 - s.width / 2;
       s.y = p.y - p.height - 10;
 
-      if (s.y > height / 1.1) s.state = 0;
+      if (s.y > window.config.height / 1.1) s.state = 0;
 
       s.draw(ctx);
     } else {
@@ -362,7 +291,7 @@ window.init = function () {
 
     platforms.forEach(function (p, i) {
       if (p.type == 2) {
-        if (p.x < 0 || p.x + p.width > width) p.vx *= -1;
+        if (p.x < 0 || p.x + p.width > window.config.width) p.vx *= -1;
 
         p.x += p.vx;
       }
@@ -375,15 +304,15 @@ window.init = function () {
         jumpCount++;
       }
 
-      p.draw();
+      p.draw(ctx);
     });
 
     if (subs.appearance === true) {
-      subs.draw();
+      subs.draw(ctx);
       subs.y += 8;
     }
 
-    if (subs.y > height) subs.appearance = false;
+    if (subs.y > window.config.height) subs.appearance = false;
   }
 
   function collides() {
@@ -397,14 +326,14 @@ window.init = function () {
         player.y + player.height > p.y &&
         player.y + player.height < p.y + p.height
       ) {
-        if (p.type == 3 && p.flag === 0) {
+        if (p.type === 3 && p.flag === 0) {
           p.flag = 1;
           jumpCount = 0;
           return;
-        } else if (p.type == 4 && p.state === 0) {
+        } else if (p.type === 4 && p.state === 0) {
           player.jump();
           p.state = 1;
-        } else if (p.flag == 1) return;
+        } else if (p.flag === 1) return;
         else {
           player.jump();
         }
@@ -428,7 +357,7 @@ window.init = function () {
 
   function updateScore() {
     var scoreText = document.getElementById('score');
-    scoreText.innerHTML = score;
+    scoreText.innerHTML = window.gameState.score;
   }
 
   function gameOver() {
@@ -436,11 +365,11 @@ window.init = function () {
       p.y -= 12;
     });
 
-    if (player.y > height / 2 && flag === 0) {
+    if (player.y > window.config.height / 2 && flag === 0) {
       player.y -= 8;
       player.vy = 0;
-    } else if (player.y < height / 2) flag = 1;
-    else if (player.y + player.height > height) {
+    } else if (player.y < window.config.height / 2) flag = 1;
+    else if (player.y + player.height > window.config.height) {
       showGoMenu();
       hideScore();
       player.isDead = 'lol';
@@ -485,8 +414,8 @@ window.reset = function () {
   player.isDead = false;
 
   flag = 0;
-  position = 0;
-  score = 0;
+  window.gameState.position = 0;
+  window.gameState.score = 0;
 
   base = new Base();
   player = new Player();
@@ -494,7 +423,7 @@ window.reset = function () {
   platform_broken_substitute = new Platform_broken_substitute();
 
   platforms = [];
-  for (var i = 0; i < platformCount; i++) {
+  for (var i = 0; i < window.config.platformCount; i++) {
     platforms.push(new Platform());
   }
 };
@@ -521,7 +450,7 @@ function showGoMenu() {
   )
     menu.style.display = 'block'; // *ff
   var scoreText = document.getElementById('go_score');
-  scoreText.innerHTML = 'You scored ' + score + ' points!';
+  scoreText.innerHTML = 'You scored ' + window.gameState.score + ' points!';
 }
 
 //Hides the game over menu
@@ -631,17 +560,17 @@ function playerJump() {
   }
 
   //Jump the player when it hits the base
-  if (player.y + player.height > base.y && base.y < height) player.jump();
+  if (player.y + player.height > base.y && base.y < window.config.height) player.jump();
 
   //Make the player move through walls
-  if (player.x > width) player.x = 0 - player.width;
-  else if (player.x < 0 - player.width) player.x = width;
+  if (player.x > window.config.width) player.x = 0 - player.width;
+  else if (player.x < 0 - player.width) player.x = window.config.width;
 
   player.draw(ctx);
 }
 
 function update() {
-  ctx.clearRect(0, 0, width, height);
+  ctx.clearRect(0, 0, window.config.width, window.config.height);
   playerJump();
 }
 
