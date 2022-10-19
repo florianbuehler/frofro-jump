@@ -1,3 +1,4 @@
+import Base from './modules/base.js'
 import Player from './modules/player.js';
 import Spring from './modules/spring.js';
 
@@ -90,39 +91,6 @@ var platforms = [],
   firstRun = true;
 
 let menuLoop;
-
-//Base object
-const Base = function () {
-  this.height = 5;
-  this.width = width;
-
-  // sprite clipping
-  this.cx = 0;
-  this.cy = 614;
-  this.cwidth = 100;
-  this.cheight = 5;
-
-  this.moved = 0;
-
-  this.x = 0;
-  this.y = height - this.height;
-
-  this.draw = function () {
-    try {
-      ctx.drawImage(
-        image,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
-};
 
 var base = new Base();
 
@@ -492,7 +460,7 @@ window.init = function () {
     playerCalc();
     player.draw(ctx);
 
-    base.draw();
+    base.draw(ctx);
 
     updateScore();
   }
