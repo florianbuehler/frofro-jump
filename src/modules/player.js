@@ -1,6 +1,4 @@
-const Player = function (canvasWidth, canvasHeight) {
-  const image = document.getElementById('sprite');
-
+const Player = function () {
   this.vy = 11;
   this.vx = 0;
 
@@ -19,8 +17,8 @@ const Player = function (canvasWidth, canvasHeight) {
 
   this.dir = 'left';
 
-  this.x = canvasWidth / 2 - this.width / 2;
-  this.y = canvasHeight;
+  this.x = window.config.width / 2 - this.width / 2;
+  this.y = window.config.height;
 
   this.draw = function (ctx) {
     try {
@@ -30,7 +28,7 @@ const Player = function (canvasWidth, canvasHeight) {
       else if (this.dir === 'left_land') this.cy = 371;
 
       ctx.drawImage(
-        image,
+        window.config.sprite,
         this.cx,
         this.cy,
         this.cwidth,
@@ -42,14 +40,14 @@ const Player = function (canvasWidth, canvasHeight) {
       );
     } catch (e) {}
   };
-
-  this.jump = function () {
-    this.vy = -8;
-  };
-
-  this.jumpHigh = function () {
-    this.vy = -16;
-  };
 };
 
-export default Player
+Player.prototype.jump = function () {
+  this.vy = -8;
+};
+
+Player.prototype.jumpHigh = function () {
+  this.vy = -16;
+};
+
+export default Player;

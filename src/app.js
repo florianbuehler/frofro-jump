@@ -1,4 +1,5 @@
-import Player from './modules/player.js'
+import Player from './modules/player.js';
+import Spring from './modules/spring.js';
 
 var ua = navigator.userAgent;
 var isIE = ua.match('MSIE');
@@ -61,11 +62,18 @@ const canvas = document.getElementById('canvas');
 if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
 const ctx = canvas.getContext('2d');
 
+window.config = {
+  width: 422,
+  height: 552,
+
+  sprite: document.getElementById('sprite')
+};
+
 const width = 422;
 const height = 552;
 
-canvas.width = width;
-canvas.height = height;
+canvas.width = window.config.width;
+canvas.height = window.config.height;
 
 //Variables for game
 var platforms = [],
@@ -118,7 +126,7 @@ const Base = function () {
 
 var base = new Base();
 
-player = new Player(width, height);
+player = new Player();
 
 //Platform class
 
@@ -232,49 +240,12 @@ var Platform_broken_substitute = function () {
 
 var platform_broken_substitute = new Platform_broken_substitute();
 
-//Spring Class
-var spring = function () {
-  this.x = 0;
-  this.y = 0;
+let spring = new Spring();
 
-  this.width = 26;
-  this.height = 30;
-
-  //Sprite clipping
-  this.cx = 0;
-  this.cy = 0;
-  this.cwidth = 45;
-  this.cheight = 53;
-
-  this.state = 0;
-
-  this.draw = function () {
-    try {
-      if (this.state === 0) this.cy = 445;
-      else if (this.state == 1) this.cy = 501;
-
-      ctx.drawImage(
-        image,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
-};
-
-var Spring = new spring();
-
-window.init = function() {
+window.init = function () {
   //Variables for the game
   var dir = 'left',
     jumpCount = 0;
-
 
   firstRun = false;
 
@@ -400,7 +371,7 @@ window.init = function() {
   //Spring algorithms
 
   function springCalc() {
-    var s = Spring;
+    var s = spring;
     var p = platforms[0];
 
     if (p.type == 1 || p.type == 2) {
@@ -409,7 +380,7 @@ window.init = function() {
 
       if (s.y > height / 1.1) s.state = 0;
 
-      s.draw();
+      s.draw(ctx);
     } else {
       s.x = 0 - s.width;
       s.y = 0 - s.height;
@@ -473,7 +444,7 @@ window.init = function() {
     });
 
     //Springs
-    var s = Spring;
+    var s = spring;
     if (
       player.vy > 0 &&
       s.state === 0 &&
@@ -538,7 +509,7 @@ window.init = function() {
 
   hideMenu();
   showScore();
-}
+};
 
 window.reset = function () {
   hideGoMenu();
@@ -550,15 +521,15 @@ window.reset = function () {
   score = 0;
 
   base = new Base();
-  player = new Player(width, height);
-  Spring = new spring();
+  player = new Player();
+  spring = new Spring();
   platform_broken_substitute = new Platform_broken_substitute();
 
   platforms = [];
   for (var i = 0; i < platformCount; i++) {
     platforms.push(new Platform());
   }
-}
+};
 
 //Hides the menu
 function hideMenu() {
