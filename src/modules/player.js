@@ -19,27 +19,29 @@ const Player = function () {
 
   this.x = window.config.width / 2 - this.width / 2;
   this.y = window.config.height;
+};
 
-  this.draw = function (ctx) {
-    try {
-      if (this.dir === 'right') this.cy = 121;
-      else if (this.dir === 'left') this.cy = 201;
-      else if (this.dir === 'right_land') this.cy = 289;
-      else if (this.dir === 'left_land') this.cy = 371;
+Player.prototype.draw = function () {
+  try {
+    if (this.dir === 'right') this.cy = 121;
+    else if (this.dir === 'left') this.cy = 201;
+    else if (this.dir === 'right_land') this.cy = 289;
+    else if (this.dir === 'left_land') this.cy = 371;
 
-      ctx.drawImage(
-        window.config.sprite,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
+    window.game.board.drawImage(
+      window.config.sprite,
+      this.cx,
+      this.cy,
+      this.cwidth,
+      this.cheight,
+      this.x,
+      this.y,
+      this.width,
+      this.height
+    );
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 Player.prototype.jump = function () {

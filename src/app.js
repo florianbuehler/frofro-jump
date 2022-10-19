@@ -62,7 +62,6 @@ window.requestAnimFrame = (function () {
 
 const canvas = document.getElementById('canvas');
 if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
-const ctx = canvas.getContext('2d');
 
 window.config = {
   width: 422,
@@ -71,7 +70,8 @@ window.config = {
   sprite: document.getElementById('sprite')
 };
 
-window.gameState = {
+window.game = {
+  board: canvas.getContext('2d'),
   position: 0,
   broken: 0,
   score: 0
@@ -121,7 +121,7 @@ var Platform_broken_substitute = function () {
   this.draw = function () {
     try {
       if (this.appearance === true)
-        ctx.drawImage(
+        window.game.board.drawImage(
           image,
           this.cx,
           this.cy,
@@ -149,7 +149,7 @@ window.init = function () {
   firstRun = false;
 
   function paintCanvas() {
-    ctx.clearRect(0, 0, window.config.width, window.config.height);
+    window.game.board.clearRect(0, 0, window.config.width, window.config.height);
   }
 
   function playerCalc() {
@@ -256,32 +256,13 @@ window.init = function () {
         player.vy += gravity;
       }
 
-      window.gameState.score++;
+      window.game.score++;
     }
 
     //Make the player jump when it collides with platforms
     collides();
 
     if (player.isDead === true) gameOver();
-  }
-
-  //Spring algorithms
-
-  function springCalc() {
-    var s = spring;
-    var p = platforms[0];
-
-    if (p.type == 1 || p.type == 2) {
-      s.x = p.x + p.width / 2 - s.width / 2;
-      s.y = p.y - p.height - 10;
-
-      if (s.y > window.config.height / 1.1) s.state = 0;
-
-      s.draw(ctx);
-    } else {
-      s.x = 0 - s.width;
-      s.y = 0 - s.height;
-    }
   }
 
   //Platform's horizontal movement (and falling) algo
@@ -304,11 +285,11 @@ window.init = function () {
         jumpCount++;
       }
 
-      p.draw(ctx);
+      p.draw();
     });
 
     if (subs.appearance === true) {
-      subs.draw(ctx);
+      subs.draw();
       subs.y += 8;
     }
 
@@ -357,7 +338,7 @@ window.init = function () {
 
   function updateScore() {
     var scoreText = document.getElementById('score');
-    scoreText.innerHTML = window.gameState.score;
+    scoreText.innerHTML = window.game.score;
   }
 
   function gameOver() {
@@ -384,12 +365,12 @@ window.init = function () {
     paintCanvas();
     platformCalc();
 
-    springCalc();
+    spring.addToPlatform(platforms[0]);
 
     playerCalc();
-    player.draw(ctx);
+    player.draw();
 
-    base.draw(ctx);
+    base.draw();
 
     updateScore();
   }
@@ -414,8 +395,8 @@ window.reset = function () {
   player.isDead = false;
 
   flag = 0;
-  window.gameState.position = 0;
-  window.gameState.score = 0;
+  window.game.position = 0;
+  window.game.score = 0;
 
   base = new Base();
   player = new Player();
@@ -450,7 +431,7 @@ function showGoMenu() {
   )
     menu.style.display = 'block'; // *ff
   var scoreText = document.getElementById('go_score');
-  scoreText.innerHTML = 'You scored ' + window.gameState.score + ' points!';
+  scoreText.innerHTML = 'You scored ' + window.game.score + ' points!';
 }
 
 //Hides the game over menu
@@ -566,11 +547,11 @@ function playerJump() {
   if (player.x > window.config.width) player.x = 0 - player.width;
   else if (player.x < 0 - player.width) player.x = window.config.width;
 
-  player.draw(ctx);
+  player.draw();
 }
 
 function update() {
-  ctx.clearRect(0, 0, window.config.width, window.config.height);
+  window.game.board.clearRect(0, 0, window.config.width, window.config.height);
   playerJump();
 }
 

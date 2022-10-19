@@ -12,22 +12,22 @@ const Base = function () {
 
   this.x = 0;
   this.y = window.config.height - this.height;
+};
 
-  this.draw = function (ctx) {
-    try {
-      ctx.drawImage(
-        window.config.sprite,
-        this.cx,
-        this.cy,
-        this.cwidth,
-        this.cheight,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-    } catch (e) {}
-  };
+Base.prototype.draw = function () {
+  try {
+    window.game.board.drawImage(
+      window.config.sprite,
+      this.cx,
+      this.cy,
+      this.cwidth,
+      this.cheight,
+      this.x,
+      this.y,
+      this.width,
+      this.height
+    );
+  } catch (e) {}
 };
 
 export default Base;
