@@ -101,7 +101,40 @@ var platform_broken_substitute = new BrokenPlatformSubstitute();
 
 let spring = new Spring();
 
-window.init = function () {
+const addKeyboardControls = function () {
+  document.onkeydown = function (e) {
+    var key = e.keyCode;
+
+    if (key == 37) {
+      dir = 'left';
+      player.isMovingLeft = true;
+    } else if (key == 39) {
+      dir = 'right';
+      player.isMovingRight = true;
+    }
+
+    if (key == 32) {
+      if (firstRun === true) startGame();
+      else resetGame();
+    }
+  };
+
+  document.onkeyup = function (e) {
+    var key = e.keyCode;
+
+    if (key == 37) {
+      dir = 'left';
+      player.isMovingLeft = false;
+    } else if (key == 39) {
+      dir = 'right';
+      player.isMovingRight = false;
+    }
+  };
+};
+
+addKeyboardControls();
+
+window.startGame = function () {
   //Variables for the game
   var dir = 'left',
     jumpCount = 0;
@@ -123,56 +156,7 @@ window.init = function () {
       if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
     }
 
-    //Adding keyboard controls
-    document.onkeydown = function (e) {
-      var key = e.keyCode;
-
-      if (key == 37) {
-        dir = 'left';
-        player.isMovingLeft = true;
-      } else if (key == 39) {
-        dir = 'right';
-        player.isMovingRight = true;
-      }
-
-      if (key == 32) {
-        if (firstRun === true) init();
-        else reset();
-      }
-    };
-
-    document.onkeyup = function (e) {
-      var key = e.keyCode;
-
-      if (key == 37) {
-        dir = 'left';
-        player.isMovingLeft = false;
-      } else if (key == 39) {
-        dir = 'right';
-        player.isMovingRight = false;
-      }
-    };
-
-    //Accelerations produces when the user hold the keys
-    if (player.isMovingLeft === true) {
-      player.x += player.vx;
-      player.vx -= 0.15;
-    } else {
-      player.x += player.vx;
-      if (player.vx < 0) player.vx += 0.1;
-    }
-
-    if (player.isMovingRight === true) {
-      player.x += player.vx;
-      player.vx += 0.15;
-    } else {
-      player.x += player.vx;
-      if (player.vx > 0) player.vx -= 0.1;
-    }
-
-    // Speed limits!
-    if (player.vx > 8) player.vx = 8;
-    else if (player.vx < -8) player.vx = -8;
+    player.move();
 
     //Jump the player when it hits the base
     if (player.y + player.height > base.y && base.y < window.config.height) player.jump();
@@ -349,7 +333,7 @@ window.init = function () {
   showScore();
 };
 
-window.reset = function () {
+window.resetGame = function () {
   hideGoMenu();
   showScore();
   player.isDead = false;
@@ -451,54 +435,7 @@ function playerJump() {
     if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
   }
 
-  //Adding keyboard controls
-  document.onkeydown = function (e) {
-    var key = e.keyCode;
-
-    if (key == 37) {
-      dir = 'left';
-      player.isMovingLeft = true;
-    } else if (key == 39) {
-      dir = 'right';
-      player.isMovingRight = true;
-    }
-
-    if (key == 32) {
-      if (firstRun === true) {
-        init();
-        firstRun = false;
-      } else reset();
-    }
-  };
-
-  document.onkeyup = function (e) {
-    var key = e.keyCode;
-
-    if (key == 37) {
-      dir = 'left';
-      player.isMovingLeft = false;
-    } else if (key == 39) {
-      dir = 'right';
-      player.isMovingRight = false;
-    }
-  };
-
-  //Accelerations produces when the user hold the keys
-  if (player.isMovingLeft === true) {
-    player.x += player.vx;
-    player.vx -= 0.15;
-  } else {
-    player.x += player.vx;
-    if (player.vx < 0) player.vx += 0.1;
-  }
-
-  if (player.isMovingRight === true) {
-    player.x += player.vx;
-    player.vx += 0.15;
-  } else {
-    player.x += player.vx;
-    if (player.vx > 0) player.vx -= 0.1;
-  }
+  player.move();
 
   //Jump the player when it hits the base
   if (player.y + player.height > base.y && base.y < window.config.height) player.jump();

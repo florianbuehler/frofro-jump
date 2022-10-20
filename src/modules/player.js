@@ -52,4 +52,27 @@ Player.prototype.jumpHigh = function () {
   this.vy = -16;
 };
 
+Player.prototype.move = function () {
+  // accelerations produces when the user hold the keys
+  if (this.isMovingLeft === true) {
+    this.x += this.vx;
+    this.vx -= 0.15;
+  } else {
+    this.x += this.vx;
+    if (this.vx < 0) this.vx += 0.1;
+  }
+
+  if (this.isMovingRight === true) {
+    this.x += this.vx;
+    this.vx += 0.15;
+  } else {
+    this.x += this.vx;
+    if (this.vx > 0) this.vx -= 0.1;
+  }
+
+  // Speed limits!
+  if (this.vx > 8) this.vx = 8;
+  else if (this.vx < -8) this.vx = -8;
+};
+
 export default Player;
