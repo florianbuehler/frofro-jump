@@ -1,6 +1,8 @@
 import Base from './modules/base.js';
+import { hideGameOverMenu, hideMenu, showGameOverMenu } from './modules/menus.js';
 import Platform, { BrokenPlatformSubstitute } from './modules/platform.js';
 import Player from './modules/player.js';
+import { hideScoreBoard, showScoreBoard } from './modules/score-board.js';
 import Spring from './modules/spring.js';
 
 var ua = navigator.userAgent;
@@ -68,7 +70,7 @@ var animloop,
 let menuLoop;
 
 const addKeyboardControls = function () {
-  const player = window.game.player
+  const player = window.game.player;
 
   document.onkeydown = function (e) {
     const key = e.keyCode;
@@ -124,7 +126,7 @@ const init = function () {
     platform_broken_substitute: new BrokenPlatformSubstitute(),
     position: 0,
     broken: 0,
-    score: 0,
+    score: 0
   };
 
   for (let i = 0; i < window.config.platformCount; i++) {
@@ -133,8 +135,6 @@ const init = function () {
 
   addKeyboardControls();
 };
-
-
 
 window.startGame = function () {
   //Variables for the game
@@ -164,7 +164,8 @@ window.startGame = function () {
     player.move();
 
     //Jump the player when it hits the base
-    if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height) player.jump();
+    if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
+      player.jump();
 
     //Gameover if it hits the bottom
     if (
@@ -307,8 +308,8 @@ window.startGame = function () {
       player.vy = 0;
     } else if (player.y < window.config.height / 2) flag = 1;
     else if (player.y + player.height > window.config.height) {
-      showGoMenu();
-      hideScore();
+      showGameOverMenu();
+      hideScoreBoard();
       player.isDead = 'lol';
 
       // pf end of game here...
@@ -342,90 +343,34 @@ window.startGame = function () {
   animloop();
 
   hideMenu();
-  showScore();
+  showScoreBoard();
 };
 
 window.resetGame = function () {
-  hideGoMenu();
-  showScore();
-  player.isDead = false;
+  hideGameOverMenu();
+  showScoreBoard();
 
   flag = 0;
-  window.game.position = 0;
-  window.game.score = 0;
 
-  window.game.base = new Base();
-  player = new Player();
-  spring = new Spring();
-  platform_broken_substitute = new BrokenPlatformSubstitute();
+  const game = window.game;
+  game.position = 0;
+  game.score = 0;
 
-  platforms = [];
-  for (var i = 0; i < window.config.platformCount; i++) {
-    platforms.push(new Platform());
+  game.base = new Base();
+  game.player = new Player();
+  game.spring = new Spring();
+  game.platform_broken_substitute = new BrokenPlatformSubstitute();
+
+  game.platforms = [];
+  for (let i = 0; i < window.config.platformCount; i++) {
+    game.platforms.push(new Platform());
   }
+
+  addKeyboardControls()
 };
 
-//Hides the menu
-function hideMenu() {
-  var menu = document.getElementById('mainMenu');
-  menu.style.zIndex = -1;
-  if (
-    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
-    navigator.userAgent.toLowerCase().indexOf('android') != -1
-  )
-    menu.style.display = 'none'; // *ff
-}
-
-//Shows the game over menu
-function showGoMenu() {
-  var menu = document.getElementById('gameOverMenu');
-  menu.style.zIndex = 1;
-  menu.style.visibility = 'visible';
-  if (
-    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
-    navigator.userAgent.toLowerCase().indexOf('android') != -1
-  )
-    menu.style.display = 'block'; // *ff
-  var scoreText = document.getElementById('go_score');
-  scoreText.innerHTML = 'You scored ' + window.game.score + ' points!';
-}
-
-//Hides the game over menu
-function hideGoMenu() {
-  var menu = document.getElementById('gameOverMenu');
-  menu.style.zIndex = -1;
-  menu.style.visibility = 'hidden';
-  if (
-    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
-    navigator.userAgent.toLowerCase().indexOf('android') != -1
-  )
-    menu.style.display = 'none'; // *ff
-}
-
-//Show ScoreBoard
-function showScore() {
-  var menu = document.getElementById('scoreBoard');
-  menu.style.zIndex = 1;
-  if (
-    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
-    navigator.userAgent.toLowerCase().indexOf('android') != -1
-  )
-    menu.style.display = 'block'; // *ff
-}
-
-//Hide ScoreBoard
-function hideScore() {
-  var menu = document.getElementById('scoreBoard');
-  menu.style.zIndex = -1;
-  if (
-    navigator.userAgent.toLowerCase().indexOf('firefox') != -1 &&
-    navigator.userAgent.toLowerCase().indexOf('android') != -1
-  )
-    menu.style.display = 'none'; // *ff
-}
-
 function playerJump() {
-  const player = window.game.player
+  const player = window.game.player;
 
   if (bTouch) dir = Dir;
 
@@ -452,7 +397,8 @@ function playerJump() {
   player.move();
 
   //Jump the player when it hits the base
-  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height) player.jump();
+  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
+    player.jump();
 
   //Make the player move through walls
   if (player.x > window.config.width) player.x = 0 - player.width;
@@ -475,4 +421,3 @@ menuLoop = function () {
 
 mobile('keys');
 menuLoop();
-
