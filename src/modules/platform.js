@@ -69,4 +69,38 @@ Platform.prototype.draw = function () {
   } catch (e) {}
 };
 
+export const BrokenPlatformSubstitute = function () {
+  this.height = 30;
+  this.width = 70;
+
+  this.x = 0;
+  this.y = 0;
+
+  // sprite clipping
+  this.cx = 0;
+  this.cy = 554;
+  this.cwidth = 105;
+  this.cheight = 60;
+
+  this.appearance = false;
+};
+
+BrokenPlatformSubstitute.prototype.draw = function () {
+  try {
+    if (this.appearance === true)
+      window.game.board.drawImage(
+        window.config.sprite,
+        this.cx,
+        this.cy,
+        this.cwidth,
+        this.cheight,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
+    else return;
+  } catch (e) {}
+};
+
 export default Platform;

@@ -1,5 +1,5 @@
 import Base from './modules/base.js';
-import Platform from './modules/platform.js';
+import Platform, { BrokenPlatformSubstitute } from './modules/platform.js';
 import Player from './modules/player.js';
 import Spring from './modules/spring.js';
 
@@ -66,6 +66,7 @@ if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
 window.config = {
   width: 422,
   height: 552,
+  gravity: 0.2,
   platformCount: 10,
   sprite: document.getElementById('sprite')
 };
@@ -82,9 +83,7 @@ canvas.height = window.config.height;
 
 //Variables for game
 var platforms = [],
-  image = document.getElementById('sprite'),
   player,
-  gravity = 0.2,
   animloop,
   flag = 0,
   dir,
@@ -96,48 +95,11 @@ var base = new Base();
 
 player = new Player();
 
-//Platform class
-
 for (var i = 0; i < window.config.platformCount; i++) {
   platforms.push(new Platform());
 }
 
-//Broken platform object
-var Platform_broken_substitute = function () {
-  this.height = 30;
-  this.width = 70;
-
-  this.x = 0;
-  this.y = 0;
-
-  //Sprite clipping
-  this.cx = 0;
-  this.cy = 554;
-  this.cwidth = 105;
-  this.cheight = 60;
-
-  this.appearance = false;
-
-  this.draw = function () {
-    try {
-      if (this.appearance === true)
-        window.game.board.drawImage(
-          image,
-          this.cx,
-          this.cy,
-          this.cwidth,
-          this.cheight,
-          this.x,
-          this.y,
-          this.width,
-          this.height
-        );
-      else return;
-    } catch (e) {}
-  };
-};
-
-var platform_broken_substitute = new Platform_broken_substitute();
+var platform_broken_substitute = new BrokenPlatformSubstitute();
 
 let spring = new Spring();
 
@@ -232,7 +194,7 @@ window.init = function () {
     //Movement of player affected by gravity
     if (player.y >= window.config.height / 2 - player.height / 2) {
       player.y += player.vy;
-      player.vy += gravity;
+      player.vy += window.config.gravity;
     }
 
     //When the player reaches half height, move the platforms to create the illusion of scrolling and recreate the platforms that are out of viewport...
@@ -249,11 +211,11 @@ window.init = function () {
       });
 
       base.y -= player.vy;
-      player.vy += gravity;
+      player.vy += window.config.gravity;
 
       if (player.vy >= 0) {
         player.y += player.vy;
-        player.vy += gravity;
+        player.vy += window.config.gravity;
       }
 
       window.game.score++;
@@ -401,7 +363,7 @@ window.reset = function () {
   base = new Base();
   player = new Player();
   spring = new Spring();
-  platform_broken_substitute = new Platform_broken_substitute();
+  platform_broken_substitute = new BrokenPlatformSubstitute();
 
   platforms = [];
   for (var i = 0; i < window.config.platformCount; i++) {
@@ -472,7 +434,7 @@ function playerJump() {
   if (bTouch) dir = Dir;
 
   player.y += player.vy;
-  player.vy += gravity;
+  player.vy += window.config.gravity;
 
   if (
     player.vy > 0 &&
