@@ -62,12 +62,9 @@ window.requestAnimFrame = (function () {
 })();
 
 //Variables for game
-var animloop,
-  flag = 0,
+var flag = 0,
   dir,
   firstRun = true;
-
-let menuLoop;
 
 const addKeyboardControls = function () {
   const player = window.game.player;
@@ -85,7 +82,7 @@ const addKeyboardControls = function () {
 
     if (key === 32) {
       if (firstRun === true) startGame();
-      else resetGame();
+      else restartGame();
     }
   };
 
@@ -102,46 +99,24 @@ const addKeyboardControls = function () {
   };
 };
 
-const init = function () {
-  // we add the config to the window object, so we can access it from everywhere
-  window.config = {
-    width: 422,
-    height: 552,
-    gravity: 0.2,
-    platformCount: 10,
-    sprite: document.getElementById('sprite')
-  };
+const menuLoop = function () {
+  console.log('in menu loop function');
+  console.log(window.game);
 
-  const canvas = document.getElementById('canvas');
-  canvas.width = window.config.width;
-  canvas.height = window.config.height;
-
-  // we add the game state to the window object, so we can access and update it from everywhere
-  window.game = {
-    board: canvas.getContext('2d'),
-    base: new Base(),
-    player: new Player(),
-    spring: new Spring(),
-    platforms: [],
-    platform_broken_substitute: new BrokenPlatformSubstitute(),
-    position: 0,
-    broken: 0,
-    score: 0
-  };
-
-  for (let i = 0; i < window.config.platformCount; i++) {
-    window.game.platforms.push(new Platform());
+  if (!window.game.gameStarted) {
+    console.log('in menu loop if');
+    window.game.board.clearRect(0, 0, window.config.width, window.config.height);
+    playerJump();
+    requestAnimFrame(menuLoop);
   }
-
-  addKeyboardControls();
 };
 
-window.startGame = function () {
+const gameLoop = function () {
+  console.log('in game loop');
+
   //Variables for the game
   var dir = 'left',
     jumpCount = 0;
-
-  firstRun = false;
 
   function paintCanvas() {
     window.game.board.clearRect(0, 0, window.config.width, window.config.height);
@@ -307,18 +282,19 @@ window.startGame = function () {
       player.y -= 8;
       player.vy = 0;
     } else if (player.y < window.config.height / 2) flag = 1;
-    else if (player.y + player.height > window.config.height) {
+    else if (player.y > window.config.height) {
       showGameOverMenu();
       hideScoreBoard();
       player.isDead = 'lol';
-
-      // pf end of game here...
+      window.game.gameStarted = false;
     }
   }
 
   //Function to update everything
 
   function update() {
+    console.log('in update');
+
     paintCanvas();
     platformCalc();
 
@@ -332,41 +308,16 @@ window.startGame = function () {
     updateScore();
   }
 
-  menuLoop = function () {
-    return;
-  };
-  animloop = function () {
+  if (window.game.gameStarted) {
     update();
-    requestAnimFrame(animloop);
-  };
-
-  animloop();
-
-  hideMenu();
-  showScoreBoard();
-};
-
-window.resetGame = function () {
-  hideGameOverMenu();
-  showScoreBoard();
-
-  flag = 0;
-
-  const game = window.game;
-  game.position = 0;
-  game.score = 0;
-
-  game.base = new Base();
-  game.player = new Player();
-  game.spring = new Spring();
-  game.platform_broken_substitute = new BrokenPlatformSubstitute();
-
-  game.platforms = [];
-  for (let i = 0; i < window.config.platformCount; i++) {
-    game.platforms.push(new Platform());
+    requestAnimFrame(gameLoop);
+  } else {
+    // we need to reset the player, position and base for the menu loop
+    window.game.player.reset();
+    window.game.position = 0;
+    window.game.base.reset();
+    menuLoop();
   }
-
-  addKeyboardControls()
 };
 
 function playerJump() {
@@ -407,17 +358,71 @@ function playerJump() {
   player.draw();
 }
 
-function update() {
-  window.game.board.clearRect(0, 0, window.config.width, window.config.height);
-  playerJump();
-}
+const initCurrentRound = function () {
+  window.game.gameStarted = true;
 
-init();
+  // we need to add some state for the current game
+  const game = window.game;
+  game.spring = new Spring();
+  game.platforms = [];
+  game.platform_broken_substitute = new BrokenPlatformSubstitute();
+  game.broken = 0;
+  game.score = 0;
 
-menuLoop = function () {
-  update();
-  requestAnimFrame(menuLoop);
+  for (let i = 0; i < window.config.platformCount; i++) {
+    game.platforms.push(new Platform());
+  }
 };
 
+const initGame = function () {
+  // we add the config to the window object, so we can access it from everywhere
+  window.config = {
+    width: 422,
+    height: 552,
+    gravity: 0.2,
+    platformCount: 10,
+    sprite: document.getElementById('sprite')
+  };
+
+  const canvas = document.getElementById('canvas');
+  canvas.width = window.config.width;
+  canvas.height = window.config.height;
+
+  // we add the initial game state to the window object, so we can access and update it from everywhere
+  window.game = {
+    gameStarted: false,
+    board: canvas.getContext('2d'),
+    base: new Base(),
+    player: new Player(),
+    position: 0
+  };
+
+  addKeyboardControls();
+
+  menuLoop();
+};
+
+window.startGame = function () {
+  firstRun = false;
+  initCurrentRound();
+
+  hideMenu();
+  showScoreBoard();
+
+  gameLoop();
+};
+
+window.restartGame = function () {
+  initCurrentRound();
+
+  hideGameOverMenu();
+  showScoreBoard();
+
+  flag = 0;
+
+  gameLoop();
+};
+
+initGame();
+
 mobile('keys');
-menuLoop();

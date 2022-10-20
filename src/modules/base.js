@@ -30,4 +30,8 @@ Base.prototype.draw = function () {
   } catch (e) {}
 };
 
+Base.prototype.reset = function () {
+  this.y = window.config.height - this.height;
+}
+
 export default Base;

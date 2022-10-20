@@ -75,4 +75,15 @@ Player.prototype.move = function () {
   else if (this.vx < -8) this.vx = -8;
 };
 
+Player.prototype.reset = function () {
+  this.vy = 11;
+  this.vx = 0;
+  this.x = window.config.width / 2 - this.width / 2;
+  this.y = window.config.height;
+
+  this.isMovingLeft = false;
+  this.isMovingRight = false;
+  this.isDead = false;
+}
+
 export default Player;
