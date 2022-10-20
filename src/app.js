@@ -4,7 +4,6 @@ import Player from './modules/player.js';
 import Spring from './modules/spring.js';
 
 var ua = navigator.userAgent;
-var isIE = ua.match('MSIE');
 var bTouch =
   ua.indexOf('(iP') == -1 &&
   ua.indexOf('Android') == -1 &&
@@ -61,7 +60,6 @@ window.requestAnimFrame = (function () {
 })();
 
 const canvas = document.getElementById('canvas');
-if (navigator.userAgent.match('MSIE')) G_vmlCanvasManager.initElement(canvas);
 
 window.config = {
   width: 422,
@@ -127,7 +125,7 @@ window.init = function () {
 
     //Adding keyboard controls
     document.onkeydown = function (e) {
-      var key = isIE ? event.keyCode : e.keyCode;
+      var key = e.keyCode;
 
       if (key == 37) {
         dir = 'left';
@@ -144,7 +142,7 @@ window.init = function () {
     };
 
     document.onkeyup = function (e) {
-      var key = isIE ? event.keyCode : e.keyCode;
+      var key = e.keyCode;
 
       if (key == 37) {
         dir = 'left';
@@ -455,7 +453,7 @@ function playerJump() {
 
   //Adding keyboard controls
   document.onkeydown = function (e) {
-    var key = isIE ? event.keyCode : e.keyCode;
+    var key = e.keyCode;
 
     if (key == 37) {
       dir = 'left';
@@ -474,7 +472,7 @@ function playerJump() {
   };
 
   document.onkeyup = function (e) {
-    var key = isIE ? event.keyCode : e.keyCode;
+    var key = e.keyCode;
 
     if (key == 37) {
       dir = 'left';
