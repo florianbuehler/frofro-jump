@@ -59,80 +59,82 @@ window.requestAnimFrame = (function () {
   );
 })();
 
-const canvas = document.getElementById('canvas');
-
-window.config = {
-  width: 422,
-  height: 552,
-  gravity: 0.2,
-  platformCount: 10,
-  sprite: document.getElementById('sprite')
-};
-
-window.game = {
-  board: canvas.getContext('2d'),
-  position: 0,
-  broken: 0,
-  score: 0
-};
-
-canvas.width = window.config.width;
-canvas.height = window.config.height;
-
 //Variables for game
-var platforms = [],
-  player,
-  animloop,
+var animloop,
   flag = 0,
   dir,
   firstRun = true;
 
 let menuLoop;
 
-var base = new Base();
-
-player = new Player();
-
-for (var i = 0; i < window.config.platformCount; i++) {
-  platforms.push(new Platform());
-}
-
-var platform_broken_substitute = new BrokenPlatformSubstitute();
-
-let spring = new Spring();
-
 const addKeyboardControls = function () {
-  document.onkeydown = function (e) {
-    var key = e.keyCode;
+  const player = window.game.player
 
-    if (key == 37) {
+  document.onkeydown = function (e) {
+    const key = e.keyCode;
+
+    if (key === 37) {
       dir = 'left';
       player.isMovingLeft = true;
-    } else if (key == 39) {
+    } else if (key === 39) {
       dir = 'right';
       player.isMovingRight = true;
     }
 
-    if (key == 32) {
+    if (key === 32) {
       if (firstRun === true) startGame();
       else resetGame();
     }
   };
 
   document.onkeyup = function (e) {
-    var key = e.keyCode;
+    const key = e.keyCode;
 
-    if (key == 37) {
+    if (key === 37) {
       dir = 'left';
       player.isMovingLeft = false;
-    } else if (key == 39) {
+    } else if (key === 39) {
       dir = 'right';
       player.isMovingRight = false;
     }
   };
 };
 
-addKeyboardControls();
+const init = function () {
+  // we add the config to the window object, so we can access it from everywhere
+  window.config = {
+    width: 422,
+    height: 552,
+    gravity: 0.2,
+    platformCount: 10,
+    sprite: document.getElementById('sprite')
+  };
+
+  const canvas = document.getElementById('canvas');
+  canvas.width = window.config.width;
+  canvas.height = window.config.height;
+
+  // we add the game state to the window object, so we can access and update it from everywhere
+  window.game = {
+    board: canvas.getContext('2d'),
+    base: new Base(),
+    player: new Player(),
+    spring: new Spring(),
+    platforms: [],
+    platform_broken_substitute: new BrokenPlatformSubstitute(),
+    position: 0,
+    broken: 0,
+    score: 0,
+  };
+
+  for (let i = 0; i < window.config.platformCount; i++) {
+    window.game.platforms.push(new Platform());
+  }
+
+  addKeyboardControls();
+};
+
+
 
 window.startGame = function () {
   //Variables for the game
@@ -146,6 +148,9 @@ window.startGame = function () {
   }
 
   function playerCalc() {
+    const player = window.game.player;
+    const platforms = window.game.platforms;
+
     if (bTouch) dir = Dir;
 
     if (dir == 'left') {
@@ -159,11 +164,11 @@ window.startGame = function () {
     player.move();
 
     //Jump the player when it hits the base
-    if (player.y + player.height > base.y && base.y < window.config.height) player.jump();
+    if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height) player.jump();
 
     //Gameover if it hits the bottom
     if (
-      base.y > window.config.height &&
+      window.game.base.y > window.config.height &&
       player.y + player.height > window.config.height &&
       player.isDead != 'lol'
     )
@@ -192,7 +197,7 @@ window.startGame = function () {
         }
       });
 
-      base.y -= player.vy;
+      window.game.base.y -= player.vy;
       player.vy += window.config.gravity;
 
       if (player.vy >= 0) {
@@ -212,7 +217,8 @@ window.startGame = function () {
   //Platform's horizontal movement (and falling) algo
 
   function platformCalc() {
-    var subs = platform_broken_substitute;
+    const subs = window.game.platform_broken_substitute;
+    const platforms = window.game.platforms;
 
     platforms.forEach(function (p, i) {
       if (p.type == 2) {
@@ -241,6 +247,9 @@ window.startGame = function () {
   }
 
   function collides() {
+    const player = window.game.player;
+    const platforms = window.game.platforms;
+
     //Platforms
     platforms.forEach(function (p, i) {
       if (
@@ -266,7 +275,7 @@ window.startGame = function () {
     });
 
     //Springs
-    var s = spring;
+    const s = window.game.spring;
     if (
       player.vy > 0 &&
       s.state === 0 &&
@@ -286,6 +295,9 @@ window.startGame = function () {
   }
 
   function gameOver() {
+    const player = window.game.player;
+    const platforms = window.game.platforms;
+
     platforms.forEach(function (p, i) {
       p.y -= 12;
     });
@@ -309,12 +321,12 @@ window.startGame = function () {
     paintCanvas();
     platformCalc();
 
-    spring.addToPlatform(platforms[0]);
+    window.game.spring.addToPlatform(window.game.platforms[0]);
 
     playerCalc();
-    player.draw();
+    window.game.player.draw();
 
-    base.draw();
+    window.game.base.draw();
 
     updateScore();
   }
@@ -342,7 +354,7 @@ window.resetGame = function () {
   window.game.position = 0;
   window.game.score = 0;
 
-  base = new Base();
+  window.game.base = new Base();
   player = new Player();
   spring = new Spring();
   platform_broken_substitute = new BrokenPlatformSubstitute();
@@ -413,6 +425,8 @@ function hideScore() {
 }
 
 function playerJump() {
+  const player = window.game.player
+
   if (bTouch) dir = Dir;
 
   player.y += player.vy;
@@ -438,7 +452,7 @@ function playerJump() {
   player.move();
 
   //Jump the player when it hits the base
-  if (player.y + player.height > base.y && base.y < window.config.height) player.jump();
+  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height) player.jump();
 
   //Make the player move through walls
   if (player.x > window.config.width) player.x = 0 - player.width;
@@ -452,6 +466,8 @@ function update() {
   playerJump();
 }
 
+init();
+
 menuLoop = function () {
   update();
   requestAnimFrame(menuLoop);
@@ -459,3 +475,4 @@ menuLoop = function () {
 
 mobile('keys');
 menuLoop();
+
