@@ -24,10 +24,10 @@ Player.prototype.draw = function () {
   try {
     const isLanding = this.vy < -7 && this.vy > -15;
 
-    if (this.dir === 'left' && !isLanding) this.cy = 201;
-    else if (this.dir === 'left' && isLanding) this.cy = 371;
-    else if (this.dir === 'right' && !isLanding) this.cy = 121;
-    else if (this.dir === 'right' && isLanding) this.cy = 289;
+    if (this.dir === 'left' && !isLanding) this.cy = 211;
+    else if (this.dir === 'left' && isLanding) this.cy = 375;
+    else if (this.dir === 'right' && !isLanding) this.cy = 125;
+    else if (this.dir === 'right' && isLanding) this.cy = 293;
 
     window.game.board.drawImage(
       window.config.sprite,
