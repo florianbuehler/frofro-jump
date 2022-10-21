@@ -21,3 +21,8 @@ export const hideScoreBoard = function () {
     menu.style.display = 'none';
   }
 };
+
+export const updateScore = function (score) {
+  const scoreText = document.getElementById('score');
+  scoreText.innerHTML = score;
+};

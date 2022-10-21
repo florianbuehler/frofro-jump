@@ -2,28 +2,26 @@ import Base from './modules/base.js';
 import { hideGameOverMenu, hideMenu, showGameOverMenu } from './modules/menus.js';
 import Platform, { BrokenPlatformSubstitute } from './modules/platform.js';
 import Player from './modules/player.js';
-import { hideScoreBoard, showScoreBoard } from './modules/score-board.js';
+import { hideScoreBoard, showScoreBoard, updateScore } from './modules/score-board.js';
 import Spring from './modules/spring.js';
 
-var ua = navigator.userAgent;
-var bTouch =
-  ua.indexOf('(iP') == -1 &&
-  ua.indexOf('Android') == -1 &&
-  ua.indexOf('BlackBerry') == -1 &&
-  ua.indexOf('HTC') == -1 &&
-  ua.indexOf('PlayBook') == -1 &&
-  ua.indexOf('webOS') == -1 &&
-  ua.indexOf('IEMobile') == -1 &&
-  ua.indexOf('Silk') == -1
-    ? false
-    : true;
+const ua = navigator.userAgent;
+const bTouch = !(
+  ua.indexOf('(iP') === -1 &&
+  ua.indexOf('Android') === -1 &&
+  ua.indexOf('BlackBerry') === -1 &&
+  ua.indexOf('HTC') === -1 &&
+  ua.indexOf('PlayBook') === -1 &&
+  ua.indexOf('webOS') === -1 &&
+  ua.indexOf('IEMobile') === -1 &&
+  ua.indexOf('Silk') === -1
+);
 var bT = 0; // emulate keys pressed
 var bTlast = 0;
-var Dir = 'left';
 
 function mobile(id) {
   // TODO: pass keys as arrays (as could change)
-  var o = document.getElementById(id);
+  const o = document.getElementById(id);
   if (o) {
     if (bTouch) {
       o.innerHTML =
@@ -41,7 +39,7 @@ function mobile(id) {
 
 if (!Array.prototype.forEach) {
   Array.prototype.forEach = function (fn, scope) {
-    for (var i = 0, len = this.length; i < len; ++i) {
+    for (let i = 0, len = this.length; i < len; ++i) {
       fn.call(scope, this[i], i, this);
     }
   };
@@ -61,63 +59,82 @@ window.requestAnimFrame = (function () {
   );
 })();
 
-//Variables for game
-var flag = 0,
-  dir,
-  firstRun = true;
-
 const addKeyboardControls = function () {
   const player = window.game.player;
 
   document.onkeydown = function (e) {
-    const key = e.keyCode;
+    const key = e.key;
 
-    if (key === 37) {
-      dir = 'left';
+    if (key === 'ArrowLeft') {
+      player.dir = 'left';
       player.isMovingLeft = true;
-    } else if (key === 39) {
-      dir = 'right';
+    } else if (key === 'ArrowRight') {
+      player.dir = 'right';
       player.isMovingRight = true;
     }
 
-    if (key === 32) {
-      if (firstRun === true) startGame();
+    if (key === ' ') {
+      if (window.game.hasPlayedBefore === true) startGame();
       else restartGame();
     }
   };
 
   document.onkeyup = function (e) {
-    const key = e.keyCode;
+    const key = e.key;
 
-    if (key === 37) {
-      dir = 'left';
+    if (key === 'ArrowLeft') {
+      player.dir = 'left';
       player.isMovingLeft = false;
-    } else if (key === 39) {
-      dir = 'right';
+    } else if (key === 'ArrowRight') {
+      player.dir = 'right';
       player.isMovingRight = false;
     }
   };
 };
 
 const menuLoop = function () {
-  console.log('in menu loop function');
-  console.log(window.game);
+  if (!window.game.isInGame) {
+    const game = window.game;
 
-  if (!window.game.gameStarted) {
-    console.log('in menu loop if');
-    window.game.board.clearRect(0, 0, window.config.width, window.config.height);
+    game.board.clearRect(0, 0, window.config.width, window.config.height);
     playerJump();
+    game.base.draw();
+
     requestAnimFrame(menuLoop);
   }
 };
 
+function playerJump() {
+  const player = window.game.player;
+
+  if (bTouch) player.dir = 'left';
+
+  player.y += player.vy;
+  player.vy += window.config.gravity;
+
+  if (
+    player.vy > 0 &&
+    player.x + 15 < 260 &&
+    player.x + player.width - 15 > 155 &&
+    player.y + player.height > 475 &&
+    player.y + player.height < 500
+  )
+    player.jump();
+
+  player.move();
+
+  //Jump the player when it hits the base
+  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
+    player.jump();
+
+  //Make the player move through walls
+  if (player.x > window.config.width) player.x = 0 - player.width;
+  else if (player.x < 0 - player.width) player.x = window.config.width;
+
+  player.draw();
+}
+
 const gameLoop = function () {
-  console.log('in game loop');
-
-  //Variables for the game
-  var dir = 'left',
-    jumpCount = 0;
-
   function paintCanvas() {
     window.game.board.clearRect(0, 0, window.config.width, window.config.height);
   }
@@ -126,15 +143,7 @@ const gameLoop = function () {
     const player = window.game.player;
     const platforms = window.game.platforms;
 
-    if (bTouch) dir = Dir;
-
-    if (dir == 'left') {
-      player.dir = 'left';
-      if (player.vy < -7 && player.vy > -15) player.dir = 'left_land';
-    } else if (dir == 'right') {
-      player.dir = 'right';
-      if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
-    }
+    if (bTouch) player.dir = 'left';
 
     player.move();
 
@@ -190,25 +199,24 @@ const gameLoop = function () {
     if (player.isDead === true) gameOver();
   }
 
-  //Platform's horizontal movement (and falling) algo
-
   function platformCalc() {
-    const subs = window.game.platform_broken_substitute;
-    const platforms = window.game.platforms;
+    const game = window.game;
+    const subs = game.platform_broken_substitute;
+    const platforms = game.platforms;
 
     platforms.forEach(function (p, i) {
-      if (p.type == 2) {
+      if (p.type === 2) {
         if (p.x < 0 || p.x + p.width > window.config.width) p.vx *= -1;
 
         p.x += p.vx;
       }
 
-      if (p.flag == 1 && subs.appearance === false && jumpCount === 0) {
+      if (p.flag === 1 && subs.appearance === false && game.jumpCount === 0) {
         subs.x = p.x;
         subs.y = p.y;
         subs.appearance = true;
 
-        jumpCount++;
+        game.jumpCount++;
       }
 
       p.draw();
@@ -225,8 +233,8 @@ const gameLoop = function () {
   function collides() {
     const player = window.game.player;
     const platforms = window.game.platforms;
+    const spring = window.game.spring;
 
-    //Platforms
     platforms.forEach(function (p, i) {
       if (
         player.vy > 0 &&
@@ -238,7 +246,7 @@ const gameLoop = function () {
       ) {
         if (p.type === 3 && p.flag === 0) {
           p.flag = 1;
-          jumpCount = 0;
+          game.jumpCount = 0;
           return;
         } else if (p.type === 4 && p.state === 0) {
           player.jump();
@@ -250,24 +258,17 @@ const gameLoop = function () {
       }
     });
 
-    //Springs
-    const s = window.game.spring;
     if (
       player.vy > 0 &&
-      s.state === 0 &&
-      player.x + 15 < s.x + s.width &&
-      player.x + player.width - 15 > s.x &&
-      player.y + player.height > s.y &&
-      player.y + player.height < s.y + s.height
+      spring.state === 0 &&
+      player.x + 15 < spring.x + spring.width &&
+      player.x + player.width - 15 > spring.x &&
+      player.y + player.height > spring.y &&
+      player.y + player.height < spring.y + spring.height
     ) {
-      s.state = 1;
+      spring.state = 1;
       player.jumpHigh();
     }
-  }
-
-  function updateScore() {
-    var scoreText = document.getElementById('score');
-    scoreText.innerHTML = window.game.score;
   }
 
   function gameOver() {
@@ -278,23 +279,21 @@ const gameLoop = function () {
       p.y -= 12;
     });
 
-    if (player.y > window.config.height / 2 && flag === 0) {
+    if (player.y > window.config.height / 2 && window.game.flag === 0) {
       player.y -= 8;
       player.vy = 0;
-    } else if (player.y < window.config.height / 2) flag = 1;
+    } else if (player.y < window.config.height / 2) window.game.flag = 1;
     else if (player.y > window.config.height) {
       showGameOverMenu();
       hideScoreBoard();
       player.isDead = 'lol';
-      window.game.gameStarted = false;
+      window.game.isInGame = false;
     }
   }
 
   //Function to update everything
 
   function update() {
-    console.log('in update');
-
     paintCanvas();
     platformCalc();
 
@@ -302,13 +301,12 @@ const gameLoop = function () {
 
     playerCalc();
     window.game.player.draw();
-
     window.game.base.draw();
 
-    updateScore();
+    updateScore(window.game.score);
   }
 
-  if (window.game.gameStarted) {
+  if (window.game.isInGame) {
     update();
     requestAnimFrame(gameLoop);
   } else {
@@ -320,46 +318,8 @@ const gameLoop = function () {
   }
 };
 
-function playerJump() {
-  const player = window.game.player;
-
-  if (bTouch) dir = Dir;
-
-  player.y += player.vy;
-  player.vy += window.config.gravity;
-
-  if (
-    player.vy > 0 &&
-    player.x + 15 < 260 &&
-    player.x + player.width - 15 > 155 &&
-    player.y + player.height > 475 &&
-    player.y + player.height < 500
-  )
-    player.jump();
-
-  if (dir == 'left') {
-    player.dir = 'left';
-    if (player.vy < -7 && player.vy > -15) player.dir = 'left_land';
-  } else if (dir == 'right') {
-    player.dir = 'right';
-    if (player.vy < -7 && player.vy > -15) player.dir = 'right_land';
-  }
-
-  player.move();
-
-  //Jump the player when it hits the base
-  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
-    player.jump();
-
-  //Make the player move through walls
-  if (player.x > window.config.width) player.x = 0 - player.width;
-  else if (player.x < 0 - player.width) player.x = window.config.width;
-
-  player.draw();
-}
-
-const initCurrentRound = function () {
-  window.game.gameStarted = true;
+const initNewRound = function () {
+  window.game.isInGame = true;
 
   // we need to add some state for the current game
   const game = window.game;
@@ -368,6 +328,8 @@ const initCurrentRound = function () {
   game.platform_broken_substitute = new BrokenPlatformSubstitute();
   game.broken = 0;
   game.score = 0;
+  game.flag = 0;
+  game.jumpCount = 0;
 
   for (let i = 0; i < window.config.platformCount; i++) {
     game.platforms.push(new Platform());
@@ -390,7 +352,8 @@ const initGame = function () {
 
   // we add the initial game state to the window object, so we can access and update it from everywhere
   window.game = {
-    gameStarted: false,
+    isInGame: false,
+    hasPlayedBefore: false,
     board: canvas.getContext('2d'),
     base: new Base(),
     player: new Player(),
@@ -403,8 +366,8 @@ const initGame = function () {
 };
 
 window.startGame = function () {
-  firstRun = false;
-  initCurrentRound();
+  window.game.hasPlayedBefore = false;
+  initNewRound();
 
   hideMenu();
   showScoreBoard();
@@ -413,12 +376,10 @@ window.startGame = function () {
 };
 
 window.restartGame = function () {
-  initCurrentRound();
+  initNewRound();
 
   hideGameOverMenu();
   showScoreBoard();
-
-  flag = 0;
 
   gameLoop();
 };

@@ -2,6 +2,7 @@ const Player = function () {
   this.vy = 11;
   this.vx = 0;
 
+  this.dir = 'left';
   this.isMovingLeft = false;
   this.isMovingRight = false;
   this.isDead = false;
@@ -15,18 +16,18 @@ const Player = function () {
   this.cwidth = 110;
   this.cheight = 80;
 
-  this.dir = 'left';
-
   this.x = window.config.width / 2 - this.width / 2;
   this.y = window.config.height;
 };
 
 Player.prototype.draw = function () {
   try {
-    if (this.dir === 'right') this.cy = 121;
-    else if (this.dir === 'left') this.cy = 201;
-    else if (this.dir === 'right_land') this.cy = 289;
-    else if (this.dir === 'left_land') this.cy = 371;
+    const isLanding = this.vy < -7 && this.vy > -15;
+
+    if (this.dir === 'left' && !isLanding) this.cy = 201;
+    else if (this.dir === 'left' && isLanding) this.cy = 371;
+    else if (this.dir === 'right' && !isLanding) this.cy = 121;
+    else if (this.dir === 'right' && isLanding) this.cy = 289;
 
     window.game.board.drawImage(
       window.config.sprite,
@@ -84,6 +85,6 @@ Player.prototype.reset = function () {
   this.isMovingLeft = false;
   this.isMovingRight = false;
   this.isDead = false;
-}
+};
 
 export default Player;
