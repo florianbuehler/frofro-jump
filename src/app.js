@@ -1,5 +1,5 @@
 import Base from './modules/base.js';
-import { hideGameOverMenu, hideMenu, showGameOverMenu } from './modules/menus.js';
+import { hideGameOverMenu, hideMainMenu, showGameOverMenu } from './modules/menus.js';
 import Platform, { BrokenPlatformSubstitute } from './modules/platform.js';
 import Player from './modules/player.js';
 import { hideScoreBoard, showScoreBoard, updateScore } from './modules/score-board.js';
@@ -13,7 +13,6 @@ const bTouch = !(
   ua.indexOf('HTC') === -1 &&
   ua.indexOf('PlayBook') === -1 &&
   ua.indexOf('webOS') === -1 &&
-  ua.indexOf('IEMobile') === -1 &&
   ua.indexOf('Silk') === -1
 );
 var bT = 0; // emulate keys pressed
@@ -59,9 +58,7 @@ window.requestAnimFrame = (function () {
   );
 })();
 
-const addKeyboardControls = function () {
-  const player = window.game.player;
-
+const addKeyboardControls = function (player) {
   document.onkeydown = function (e) {
     const key = e.key;
 
@@ -74,8 +71,7 @@ const addKeyboardControls = function () {
     }
 
     if (key === ' ') {
-      if (window.game.hasPlayedBefore === true) startGame();
-      else restartGame();
+      !window.game.hasPlayedBefore ? startGame() : restartGame();
     }
   };
 
@@ -92,19 +88,25 @@ const addKeyboardControls = function () {
   };
 };
 
+//
+// menu loop specific functions
+//
+
 const menuLoop = function () {
   if (!window.game.isInGame) {
     const game = window.game;
 
     game.board.clearRect(0, 0, window.config.width, window.config.height);
-    playerJump();
     game.base.draw();
+
+    determineNewPlayerPositionForMenu();
+    game.player.draw();
 
     requestAnimFrame(menuLoop);
   }
 };
 
-function playerJump() {
+function determineNewPlayerPositionForMenu() {
   const player = window.game.player;
 
   if (bTouch) player.dir = 'left';
@@ -112,27 +114,32 @@ function playerJump() {
   player.y += player.vy;
   player.vy += window.config.gravity;
 
+  player.move();
+
+  // let the player jump when he hits the platform (button)
   if (
     player.vy > 0 &&
     player.x + 15 < 260 &&
     player.x + player.width - 15 > 155 &&
     player.y + player.height > 475 &&
     player.y + player.height < 500
-  )
+  ) {
     player.jump();
+  }
 
-  player.move();
-
-  //Jump the player when it hits the base
-  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
+  // let the player jump when he hits the base
+  if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height) {
     player.jump();
+  }
 
-  //Make the player move through walls
+  // let the player move through walls
   if (player.x > window.config.width) player.x = 0 - player.width;
   else if (player.x < 0 - player.width) player.x = window.config.width;
-
-  player.draw();
 }
+
+//
+// game loop specific functions
+//
 
 const gameLoop = function () {
   function paintCanvas() {
@@ -343,7 +350,7 @@ const initGame = function () {
     height: 552,
     gravity: 0.2,
     platformCount: 10,
-    sprite: document.getElementById('sprite')
+    sprites: document.getElementById('sprites')
   };
 
   const canvas = document.getElementById('canvas');
@@ -360,16 +367,16 @@ const initGame = function () {
     position: 0
   };
 
-  addKeyboardControls();
+  addKeyboardControls(window.game.player);
 
   menuLoop();
 };
 
 window.startGame = function () {
-  window.game.hasPlayedBefore = false;
+  window.game.hasPlayedBefore = true;
   initNewRound();
 
-  hideMenu();
+  hideMainMenu();
   showScoreBoard();
 
   gameLoop();

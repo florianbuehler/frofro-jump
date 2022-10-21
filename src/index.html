@@ -18,20 +18,20 @@
     />
 
     <link rel="stylesheet" href="styles.css" />
-    <script type="module" src="app.js"></script>
+    <script defer type="module" src="app.js"></script>
   </head>
   <body>
     <div class="container">
-      <canvas id="canvas"> Aww, your browser doesn't support HTML5! </canvas>
+      <canvas id="canvas">Aww, your browser doesn't support HTML5!</canvas>
 
       <div id="mainMenu">
         <h1>FroFro Jump</h1>
         <h3>for my lelala <3</h3>
 
-        <p class="info">
+        <p class="gameplay">
           use
-          <span class="key left">?</span>
-          <span class="key right">?</span>
+          <span class="key left">&larr;</span>
+          <span class="key right">&rarr;</span>
           to move and space to (re) start...
         </p>
         <a class="button" href="javascript:startGame()">Play</a>
@@ -44,7 +44,7 @@
         <a class="button" href="javascript:restartGame()">Restart</a>
       </div>
 
-      <img id="sprite" alt="" src="./assets/sprites.png" />
+      <img id="sprites" alt="" src="./assets/sprites.png" />
 
       <div id="scoreBoard">
         <p id="score">0</p>

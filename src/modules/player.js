@@ -14,7 +14,7 @@ const Player = function () {
   this.cx = 0;
   this.cy = 0;
   this.cwidth = 110;
-  this.cheight = 80;
+  this.cheight = 82;
 
   this.x = window.config.width / 2 - this.width / 2;
   this.y = window.config.height;
@@ -26,11 +26,11 @@ Player.prototype.draw = function () {
 
     if (this.dir === 'left' && !isLanding) this.cy = 211;
     else if (this.dir === 'left' && isLanding) this.cy = 375;
-    else if (this.dir === 'right' && !isLanding) this.cy = 125;
+    else if (this.dir === 'right' && !isLanding) this.cy = 123;
     else if (this.dir === 'right' && isLanding) this.cy = 293;
 
     window.game.board.drawImage(
-      window.config.sprite,
+      window.config.sprites,
       this.cx,
       this.cy,
       this.cwidth,

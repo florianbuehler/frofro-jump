@@ -1,4 +1,4 @@
-export const hideMenu = function () {
+export const hideMainMenu = function () {
   const menu = document.getElementById('mainMenu');
   menu.style.zIndex = '-1';
 

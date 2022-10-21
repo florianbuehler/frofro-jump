@@ -56,7 +56,7 @@ Platform.prototype.draw = function () {
     else if (this.type === 4 && this.state === 1) this.cy = 1000;
 
     window.game.board.drawImage(
-      window.config.sprite,
+      window.config.sprites,
       this.cx,
       this.cy,
       this.cwidth,
@@ -89,7 +89,7 @@ BrokenPlatformSubstitute.prototype.draw = function () {
   try {
     if (this.appearance === true)
       window.game.board.drawImage(
-        window.config.sprite,
+        window.config.sprites,
         this.cx,
         this.cy,
         this.cwidth,

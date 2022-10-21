@@ -17,7 +17,7 @@ const Base = function () {
 Base.prototype.draw = function () {
   try {
     window.game.board.drawImage(
-      window.config.sprite,
+      window.config.sprites,
       this.cx,
       this.cy,
       this.cwidth,
