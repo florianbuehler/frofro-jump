@@ -16,11 +16,10 @@ const Spring = function () {
 
 Spring.prototype.draw = function () {
   try {
-    if (this.state === 0)  {
+    if (this.state === 0) {
       this.cy = 455;
       this.cheight = 45;
-    }
-    else if (this.state === 1){
+    } else if (this.state === 1) {
       this.cy = 501;
       this.cheight = 53;
     }
