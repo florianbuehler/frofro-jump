@@ -106,7 +106,7 @@ const menuLoop = function () {
   }
 };
 
-function determineNewPlayerPositionForMenu() {
+const determineNewPlayerPositionForMenu = () => {
   const player = window.game.player;
 
   if (bTouch) player.dir = 'left';
@@ -135,193 +135,197 @@ function determineNewPlayerPositionForMenu() {
   // let the player move through walls
   if (player.x > window.config.width) player.x = 0 - player.width;
   else if (player.x < 0 - player.width) player.x = window.config.width;
-}
+};
 
 //
 // game loop specific functions
 //
 
 const gameLoop = function () {
-  function paintCanvas() {
-    window.game.board.clearRect(0, 0, window.config.width, window.config.height);
+  if (window.game.isInGame) {
+    const game = window.game;
+
+    game.board.clearRect(0, 0, window.config.width, window.config.height);
+    game.base.draw();
+
+    determinePlatformPosition();
+    game.platforms.forEach(function (p) {
+      p.draw();
+    });
+
+    game.spring.addToPlatform(game.platforms[0]);
+
+    determinePlayerPosition();
+    game.player.draw();
+
+    updateScore(game.score);
+
+    requestAnimFrame(gameLoop);
+  } else {
+    // if the player is not in the game anymore we need to reset the player, position and base for the menu loop
+    window.game.player.reset();
+    window.game.position = 0;
+    window.game.base.reset();
+
+    menuLoop();
+  }
+};
+
+const determinePlatformPosition = () => {
+  const game = window.game;
+  const subs = game.platform_broken_substitute;
+  const platforms = game.platforms;
+
+  platforms.forEach(function (p) {
+    if (p.type === 2) {
+      if (p.x < 0 || p.x + p.width > window.config.width) p.vx *= -1;
+
+      p.x += p.vx;
+    }
+
+    if (p.flag === 1 && subs.appearance === false && game.jumpCount === 0) {
+      subs.x = p.x;
+      subs.y = p.y;
+      subs.appearance = true;
+
+      game.jumpCount++;
+    }
+  });
+
+  if (subs.appearance === true) {
+    subs.draw();
+    subs.y += 8;
   }
 
-  function playerCalc() {
-    const player = window.game.player;
-    const platforms = window.game.platforms;
+  if (subs.y > window.config.height) subs.appearance = false;
+};
 
-    if (bTouch) player.dir = 'left';
+const determinePlayerPosition = () => {
+  const player = window.game.player;
+  const base = window.game.base;
+  const platforms = window.game.platforms;
 
-    player.move();
+  if (bTouch) player.dir = 'left';
 
-    //Jump the player when it hits the base
-    if (player.y + player.height > window.game.base.y && window.game.base.y < window.config.height)
-      player.jump();
+  player.move();
 
-    //Gameover if it hits the bottom
-    if (
-      window.game.base.y > window.config.height &&
-      player.y + player.height > window.config.height &&
-      player.isDead != 'lol'
-    )
-      player.isDead = true;
+  // jump the player when he hits the base
+  if (player.y + player.height > base.y && base.y < window.config.height) {
+    player.jump();
+  }
 
-    //Make the player move through walls
-    if (player.x > window.config.width) player.x = 0 - player.width;
-    else if (player.x < 0 - player.width) player.x = window.config.width;
+  // game over if the player hits the bottom
+  if (
+    base.y > window.config.height &&
+    player.y + player.height > window.config.height &&
+    player.isDead !== 'lol'
+  ) {
+    player.isDead = true;
+  }
 
-    //Movement of player affected by gravity
-    if (player.y >= window.config.height / 2 - player.height / 2) {
+  // make the player move through walls
+  if (player.x > window.config.width) player.x = 0 - player.width;
+  else if (player.x < 0 - player.width) player.x = window.config.width;
+
+  // movement of player affected by gravity
+  if (player.y >= window.config.height / 2 - player.height / 2) {
+    player.y += player.vy;
+    player.vy += window.config.gravity;
+  }
+
+  // when the player reaches half height, move the platforms to create the illusion of scrolling
+  // and recreate the platforms that are out of viewport...
+  else {
+    platforms.forEach(function (p, i) {
+      if (player.vy < 0) {
+        p.y -= player.vy;
+      }
+
+      if (p.y > window.config.height) {
+        platforms[i] = new Platform();
+        platforms[i].y = p.y - window.config.height;
+      }
+    });
+
+    base.y -= player.vy;
+    player.vy += window.config.gravity;
+
+    if (player.vy >= 0) {
       player.y += player.vy;
       player.vy += window.config.gravity;
     }
 
-    //When the player reaches half height, move the platforms to create the illusion of scrolling and recreate the platforms that are out of viewport...
-    else {
-      platforms.forEach(function (p, i) {
-        if (player.vy < 0) {
-          p.y -= player.vy;
-        }
-
-        if (p.y > window.config.height) {
-          platforms[i] = new Platform();
-          platforms[i].y = p.y - window.config.height;
-        }
-      });
-
-      window.game.base.y -= player.vy;
-      player.vy += window.config.gravity;
-
-      if (player.vy >= 0) {
-        player.y += player.vy;
-        player.vy += window.config.gravity;
-      }
-
-      window.game.score++;
-    }
-
-    //Make the player jump when it collides with platforms
-    collides();
-
-    if (player.isDead === true) gameOver();
+    window.game.score++;
   }
 
-  function platformCalc() {
-    const game = window.game;
-    const subs = game.platform_broken_substitute;
-    const platforms = game.platforms;
+  // make the player jump when he collides with platforms
+  jumpPlayerWhenHittingAPlatform();
 
-    platforms.forEach(function (p, i) {
-      if (p.type === 2) {
-        if (p.x < 0 || p.x + p.width > window.config.width) p.vx *= -1;
-
-        p.x += p.vx;
-      }
-
-      if (p.flag === 1 && subs.appearance === false && game.jumpCount === 0) {
-        subs.x = p.x;
-        subs.y = p.y;
-        subs.appearance = true;
-
-        game.jumpCount++;
-      }
-
-      p.draw();
-    });
-
-    if (subs.appearance === true) {
-      subs.draw();
-      subs.y += 8;
-    }
-
-    if (subs.y > window.config.height) subs.appearance = false;
+  if (player.isDead === true) {
+    gameOver();
   }
+};
 
-  function collides() {
-    const player = window.game.player;
-    const platforms = window.game.platforms;
-    const spring = window.game.spring;
+const jumpPlayerWhenHittingAPlatform = () => {
+  const player = window.game.player;
+  const platforms = window.game.platforms;
+  const spring = window.game.spring;
 
-    platforms.forEach(function (p, i) {
-      if (
-        player.vy > 0 &&
-        p.state === 0 &&
-        player.x + 15 < p.x + p.width &&
-        player.x + player.width - 15 > p.x &&
-        player.y + player.height > p.y &&
-        player.y + player.height < p.y + p.height
-      ) {
-        if (p.type === 3 && p.flag === 0) {
-          p.flag = 1;
-          game.jumpCount = 0;
-          return;
-        } else if (p.type === 4 && p.state === 0) {
-          player.jump();
-          p.state = 1;
-        } else if (p.flag === 1) return;
-        else {
-          player.jump();
-        }
-      }
-    });
-
+  platforms.forEach(function (p, i) {
     if (
       player.vy > 0 &&
-      spring.state === 0 &&
-      player.x + 15 < spring.x + spring.width &&
-      player.x + player.width - 15 > spring.x &&
-      player.y + player.height > spring.y &&
-      player.y + player.height < spring.y + spring.height
+      p.state === 0 &&
+      player.x + 15 < p.x + p.width &&
+      player.x + player.width - 15 > p.x &&
+      player.y + player.height > p.y &&
+      player.y + player.height < p.y + p.height
     ) {
-      spring.state = 1;
-      player.jumpHigh();
+      if (p.type === 3 && p.flag === 0) {
+        p.flag = 1;
+        game.jumpCount = 0;
+        return;
+      } else if (p.type === 4 && p.state === 0) {
+        player.jump();
+        p.state = 1;
+      } else if (p.flag === 1) {
+        return;
+      } else {
+        player.jump();
+      }
     }
+  });
+
+  if (
+    player.vy > 0 &&
+    spring.state === 0 &&
+    player.x + 15 < spring.x + spring.width &&
+    player.x + player.width - 15 > spring.x &&
+    player.y + player.height > spring.y &&
+    player.y + player.height < spring.y + spring.height
+  ) {
+    spring.state = 1;
+    player.jumpHigh();
   }
+};
 
-  function gameOver() {
-    const player = window.game.player;
-    const platforms = window.game.platforms;
+const gameOver = () => {
+  const player = window.game.player;
+  const platforms = window.game.platforms;
 
-    platforms.forEach(function (p, i) {
-      p.y -= 12;
-    });
+  platforms.forEach(function (p, i) {
+    p.y -= 12;
+  });
 
-    if (player.y > window.config.height / 2 && window.game.flag === 0) {
-      player.y -= 8;
-      player.vy = 0;
-    } else if (player.y < window.config.height / 2) window.game.flag = 1;
-    else if (player.y > window.config.height) {
-      showGameOverMenu();
-      hideScoreBoard();
-      player.isDead = 'lol';
-      window.game.isInGame = false;
-    }
-  }
-
-  //Function to update everything
-
-  function update() {
-    paintCanvas();
-    platformCalc();
-
-    window.game.spring.addToPlatform(window.game.platforms[0]);
-
-    playerCalc();
-    window.game.player.draw();
-    window.game.base.draw();
-
-    updateScore(window.game.score);
-  }
-
-  if (window.game.isInGame) {
-    update();
-    requestAnimFrame(gameLoop);
-  } else {
-    // we need to reset the player, position and base for the menu loop
-    window.game.player.reset();
-    window.game.position = 0;
-    window.game.base.reset();
-    menuLoop();
+  if (player.y > window.config.height / 2 && window.game.flag === 0) {
+    player.y -= 8;
+    player.vy = 0;
+  } else if (player.y < window.config.height / 2) {
+    window.game.flag = 1;
+  } else if (player.y > window.config.height) {
+    showGameOverMenu();
+    hideScoreBoard();
+    player.isDead = 'lol';
+    window.game.isInGame = false;
   }
 };
 
