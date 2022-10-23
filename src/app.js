@@ -5,6 +5,9 @@ import Player from './modules/player.js';
 import { hideScoreBoard, showScoreBoard, updateScore } from './modules/score-board.js';
 import Spring from './modules/spring.js';
 
+/////
+/////  TODO refactor
+/////
 const ua = navigator.userAgent;
 const bTouch = !(
   ua.indexOf('(iP') === -1 &&
@@ -18,31 +21,31 @@ const bTouch = !(
 var bT = 0; // emulate keys pressed
 var bTlast = 0;
 
+console.log(ua);
+
 function mobile(id) {
   // TODO: pass keys as arrays (as could change)
   const o = document.getElementById(id);
   if (o) {
-    if (bTouch) {
-      o.innerHTML =
-        "<p><div style='border:1px solid red;width:60px;float:left;margin-left:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"left\";player.isMovingLeft = false;' ontouchstart='Dir = \"left\";player.isMovingLeft = true;' >&larr;</div> <div style='border:1px solid red;width:60px;float:right;margin-right:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"right\";player.isMovingRight = false;' ontouchstart='Dir = \"right\";player.isMovingRight = true;' >&rarr;</div></p>";
-
-      document.body.addEventListener('touchmove', function (event) {
-        event.preventDefault();
-      });
-      setTimeout(function () {
-        window.scrollTo(0, 1);
-      }, 1);
-    }
+    // if (bTouch) {
+    //   o.innerHTML =
+    //     "<p><div style='border:1px solid red;width:60px;float:left;margin-left:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"left\";player.isMovingLeft = false;' ontouchstart='Dir = \"left\";player.isMovingLeft = true;' >&larr;</div> <div style='border:1px solid red;width:60px;float:right;margin-right:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"right\";player.isMovingRight = false;' ontouchstart='Dir = \"right\";player.isMovingRight = true;' >&rarr;</div></p>";
+    //
+    //   document.body.addEventListener('touchmove', function (event) {
+    //     event.preventDefault();
+    //   });
+    //   setTimeout(function () {
+    //     window.scrollTo(0, 1);
+    //   }, 1);
+    // }
   }
 }
 
-if (!Array.prototype.forEach) {
-  Array.prototype.forEach = function (fn, scope) {
-    for (let i = 0, len = this.length; i < len; ++i) {
-      fn.call(scope, this[i], i, this);
-    }
-  };
-}
+mobile('keys');
+
+////
+////
+////
 
 // RequestAnimFrame: a browser API for getting smooth animations
 window.requestAnimFrame = (function () {
@@ -348,9 +351,13 @@ const initNewRound = function () {
 };
 
 const initGame = function () {
+  let isMobile = window.matchMedia('only screen and (max-width: 760px)').matches;
+
+  console.log('isMobile:', isMobile);
+
   // we add the config to the window object, so we can access it from everywhere
   window.config = {
-    width: 422,
+    width: document.getElementById('gameContainer').offsetWidth,
     height: 552,
     gravity: 0.2,
     platformCount: 10,
@@ -396,5 +403,3 @@ window.restartGame = function () {
 };
 
 initGame();
-
-mobile('keys');
