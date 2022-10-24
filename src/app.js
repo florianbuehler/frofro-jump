@@ -357,7 +357,7 @@ const initGame = function () {
 
   // we add the config to the window object, so we can access it from everywhere
   window.config = {
-    width: document.getElementById('gameContainer').offsetWidth,
+    width: document.getElementById('game').offsetWidth,
     height: 552,
     gravity: 0.2,
     platformCount: 10,

@@ -8,9 +8,24 @@ div {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 0;
   padding: 0;
   font-family: 'Gloria Hallelujah', cursive;
+}
+
+@media only screen and (min-width: 500px) {
+  body {
+    margin-top: 20px;
+  }
+}
+
+#gameWrapper {
+  width: fit-content;
+  height: 100%;
+  background: url(./assets/background.png) top left;
 }
 
 #gameContainer {
@@ -18,15 +33,31 @@ body {
   max-width: 422px;
   width: 100%;
   position: relative;
-  margin: 20px auto 0;
+
   overflow: hidden;
+}
+
+#game {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#mainMenu,
+#gameOverMenu {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
 
 canvas {
   height: 100%;
   width: 100%;
   display: block;
-  background: url(./assets/background.png) top left;
 }
 
 #scoreBoard {
@@ -49,17 +80,6 @@ canvas {
 
 img {
   display: none;
-}
-
-#mainMenu,
-#gameOverMenu {
-  height: 100%;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
 }
 
 #gameOverMenu {

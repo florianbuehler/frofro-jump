@@ -21,35 +21,38 @@
     <script defer type="module" src="app.js"></script>
   </head>
   <body>
-    <div id="gameContainer">
-      <canvas id="canvas">Aww, your browser doesn't support HTML5!</canvas>
+    <div id="gameWrapper">
+      <div id="gameContainer">
+        <div id="game">
+          <canvas id="canvas">Aww, your browser doesn't support HTML5!</canvas>
+          <div id="scoreBoard">
+            <p id="score">0</p>
+          </div>
+        </div>
 
-      <div id="mainMenu">
-        <h1>FroFro Jump</h1>
-        <h3>for my lelala <3</h3>
+        <div id="mainMenu">
+          <h1>FroFro Jump</h1>
+          <h3>for my lelala <3</h3>
 
-        <p class="gameplay">
-          use
-          <span class="key left">&larr;</span>
-          <span class="key right">&rarr;</span>
-          to move and space to (re) start...
-        </p>
-        <a class="button" href="javascript:startGame()">Play</a>
-      </div>
+          <p class="gameplay">
+            use
+            <span class="key left">&larr;</span>
+            <span class="key right">&rarr;</span>
+            to move and space to (re) start...
+          </p>
+          <a class="button" href="javascript:startGame()">Play</a>
+        </div>
 
-      <div id="gameOverMenu">
-        <h1>game over!</h1>
-        <h3 id="go_score">you scored 0 points</h3>
+        <div id="gameOverMenu">
+          <h1>game over!</h1>
+          <h3 id="go_score">you scored 0 points</h3>
 
-        <a class="button" href="javascript:restartGame()">Restart</a>
-      </div>
-
-      <img id="sprites" alt="" src="./assets/sprites.png" />
-
-      <div id="scoreBoard">
-        <p id="score">0</p>
+          <a class="button" href="javascript:restartGame()">Restart</a>
+        </div>
       </div>
     </div>
+
+    <img id="sprites" alt="" src="./assets/sprites.png" />
     <div id="keys"></div>
   </body>
 </html>
