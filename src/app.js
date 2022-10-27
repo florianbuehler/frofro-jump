@@ -5,48 +5,6 @@ import Player from './modules/player.js';
 import { hideScoreBoard, showScoreBoard, updateScore } from './modules/score-board.js';
 import Spring from './modules/spring.js';
 
-/////
-/////  TODO refactor
-/////
-const ua = navigator.userAgent;
-const bTouch = !(
-  ua.indexOf('(iP') === -1 &&
-  ua.indexOf('Android') === -1 &&
-  ua.indexOf('BlackBerry') === -1 &&
-  ua.indexOf('HTC') === -1 &&
-  ua.indexOf('PlayBook') === -1 &&
-  ua.indexOf('webOS') === -1 &&
-  ua.indexOf('Silk') === -1
-);
-var bT = 0; // emulate keys pressed
-var bTlast = 0;
-
-console.log(ua);
-
-function mobile(id) {
-  // TODO: pass keys as arrays (as could change)
-  const o = document.getElementById(id);
-  if (o) {
-    // if (bTouch) {
-    //   o.innerHTML =
-    //     "<p><div style='border:1px solid red;width:60px;float:left;margin-left:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"left\";player.isMovingLeft = false;' ontouchstart='Dir = \"left\";player.isMovingLeft = true;' >&larr;</div> <div style='border:1px solid red;width:60px;float:right;margin-right:60px;font-size:xx-large;-webkit-user-select:none;' ontouchend='Dir = \"right\";player.isMovingRight = false;' ontouchstart='Dir = \"right\";player.isMovingRight = true;' >&rarr;</div></p>";
-    //
-    //   document.body.addEventListener('touchmove', function (event) {
-    //     event.preventDefault();
-    //   });
-    //   setTimeout(function () {
-    //     window.scrollTo(0, 1);
-    //   }, 1);
-    // }
-  }
-}
-
-mobile('keys');
-
-////
-////
-////
-
 // RequestAnimFrame: a browser API for getting smooth animations
 window.requestAnimFrame = (function () {
   return (
@@ -91,6 +49,34 @@ const addKeyboardControls = function (player) {
   };
 };
 
+const addTouchControls = (player) => {
+  const leftTouchControl = document.querySelector('#leftTouchControl');
+  leftTouchControl.addEventListener('touchstart', function (event) {
+    player.dir = 'left';
+    player.isMovingLeft = true;
+  });
+  leftTouchControl.addEventListener('touchmove', function (event) {
+    event.preventDefault();
+  });
+  leftTouchControl.addEventListener('touchend', function (event) {
+    player.dir = 'left';
+    player.isMovingLeft = false;
+  });
+
+  const rightTouchControl = document.querySelector('#rightTouchControl');
+  rightTouchControl.addEventListener('touchstart', function (event) {
+    player.dir = 'right';
+    player.isMovingRight = true;
+  });
+  rightTouchControl.addEventListener('touchmove', function (event) {
+    event.preventDefault();
+  });
+  rightTouchControl.addEventListener('touchend', function (event) {
+    player.dir = 'right';
+    player.isMovingRight = false;
+  });
+};
+
 //
 // menu loop specific functions
 //
@@ -111,8 +97,6 @@ const menuLoop = function () {
 
 const determineNewPlayerPositionForMenu = () => {
   const player = window.game.player;
-
-  if (bTouch) player.dir = 'left';
 
   player.y += player.vy;
   player.vy += window.config.gravity;
@@ -207,8 +191,6 @@ const determinePlayerPosition = () => {
   const player = window.game.player;
   const base = window.game.base;
   const platforms = window.game.platforms;
-
-  if (bTouch) player.dir = 'left';
 
   player.move();
 
@@ -351,10 +333,6 @@ const initNewRound = function () {
 };
 
 const initGame = function () {
-  let isMobile = window.matchMedia('only screen and (max-width: 760px)').matches;
-
-  console.log('isMobile:', isMobile);
-
   // we add the config to the window object, so we can access it from everywhere
   window.config = {
     width: document.getElementById('game').offsetWidth,
@@ -378,7 +356,13 @@ const initGame = function () {
     position: 0
   };
 
-  addKeyboardControls(window.game.player);
+  let isMobile = !window.matchMedia('only screen and (min-width: 500px)').matches;
+
+  if (isMobile) {
+    addTouchControls(window.game.player);
+  } else {
+    addKeyboardControls(window.game.player);
+  }
 
   menuLoop();
 };

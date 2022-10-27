@@ -16,16 +16,9 @@ body {
   font-family: 'Gloria Hallelujah', cursive;
 }
 
-@media only screen and (min-width: 500px) {
-  body {
-    margin-top: 20px;
-  }
-}
-
 #gameWrapper {
   width: fit-content;
   height: 100%;
-  background: url(./assets/background.png) top left;
 }
 
 #gameContainer {
@@ -35,6 +28,7 @@ body {
   position: relative;
 
   overflow: hidden;
+  background: url(./assets/background.png) top left;
 }
 
 #game {
@@ -86,6 +80,20 @@ img {
   visibility: hidden;
 }
 
+#touchControlBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+}
+
+.touchControl {
+  width: 54px;
+  height: 54px;
+  background: red;
+  border: none;
+}
+
 h2,
 h3,
 h1 {
@@ -103,6 +111,7 @@ h3 {
   margin: -10px 20px 0 0;
   color: #5e96be;
 }
+
 h3 a {
   color: #5a5816;
 }
@@ -143,4 +152,14 @@ h3 a {
 }
 .gameplay .key.right {
   background-position: -92px -641px;
+}
+
+@media only screen and (min-width: 500px) {
+  body {
+    margin-top: 20px;
+  }
+
+  #touchControlBar {
+    display: none;
+  }
 }
