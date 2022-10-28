@@ -90,8 +90,15 @@ img {
 .touchControl {
   width: 54px;
   height: 54px;
-  background: red;
   border: none;
+}
+
+.touchControl.left {
+  background: url(./assets/left-touch-control.jpg);
+}
+
+.touchControl.right {
+  background: url(./assets/right-touch-control.jpg);
 }
 
 h2,
