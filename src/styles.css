@@ -90,7 +90,6 @@ img {
 .touchControl {
   width: 54px;
   height: 54px;
-  border: none;
 }
 
 .touchControl.left {
@@ -107,10 +106,10 @@ h1 {
   font-weight: normal;
 }
 h1 {
-  font-size: 60px;
+  font-size: 58px;
   color: #5a5816;
   transform: rotate(-10deg);
-  margin: 0;
+  margin: 0.5rem 0 0 0;
 }
 
 h3 {
@@ -140,9 +139,12 @@ h3 a {
 
 .gameplay {
   position: absolute;
-  right: 20px;
-  bottom: 00px;
+  left: 0;
+  bottom: 0;
   margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
   color: green;
 }
 

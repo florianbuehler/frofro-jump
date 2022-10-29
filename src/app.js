@@ -52,6 +52,7 @@ const addKeyboardControls = function (player) {
 const addTouchControls = (player) => {
   const leftTouchControl = document.querySelector('#leftTouchControl');
   leftTouchControl.addEventListener('touchstart', function (event) {
+    event.preventDefault();
     player.dir = 'left';
     player.isMovingLeft = true;
   });
@@ -59,12 +60,14 @@ const addTouchControls = (player) => {
     event.preventDefault();
   });
   leftTouchControl.addEventListener('touchend', function (event) {
+    event.preventDefault();
     player.dir = 'left';
     player.isMovingLeft = false;
   });
 
   const rightTouchControl = document.querySelector('#rightTouchControl');
   rightTouchControl.addEventListener('touchstart', function (event) {
+    event.preventDefault();
     player.dir = 'right';
     player.isMovingRight = true;
   });
@@ -72,6 +75,7 @@ const addTouchControls = (player) => {
     event.preventDefault();
   });
   rightTouchControl.addEventListener('touchend', function (event) {
+    event.preventDefault();
     player.dir = 'right';
     player.isMovingRight = false;
   });
@@ -97,6 +101,7 @@ const menuLoop = function () {
 
 const determineNewPlayerPositionForMenu = () => {
   const player = window.game.player;
+  const width = window.config.width;
 
   player.y += player.vy;
   player.vy += window.config.gravity;
@@ -106,8 +111,8 @@ const determineNewPlayerPositionForMenu = () => {
   // let the player jump when he hits the platform (button)
   if (
     player.vy > 0 &&
-    player.x + 15 < 260 &&
-    player.x + player.width - 15 > 155 &&
+    player.x + 15 < width / 2 + 52 &&
+    player.x + player.width - 15 > width / 2 - 52 &&
     player.y + player.height > 475 &&
     player.y + player.height < 500
   ) {
