@@ -17,13 +17,13 @@ body {
 }
 
 #gameWrapper {
-  width: fit-content;
   height: 100%;
+  max-width: 422px;
+  width: 100vw;
 }
 
 #gameContainer {
   height: 552px;
-  max-width: 422px;
   width: 100%;
   position: relative;
 
