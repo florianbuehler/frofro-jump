@@ -312,7 +312,7 @@ const gameOver = () => {
   } else if (player.y < window.config.height / 2) {
     window.game.flag = 1;
   } else if (player.y > window.config.height) {
-    showGameOverMenu();
+    showGameOverMenu(window.game.score);
     hideScoreBoard();
     player.isDead = 'lol';
     window.game.isInGame = false;

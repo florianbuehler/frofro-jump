@@ -80,6 +80,11 @@ img {
   visibility: hidden;
 }
 
+.gameScore {
+  margin: 1.5rem 0 0 0;
+  text-align: center;
+}
+
 #touchControlBar {
   display: flex;
   flex-direction: row;

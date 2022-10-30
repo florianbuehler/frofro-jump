@@ -10,7 +10,7 @@ export const hideMainMenu = function () {
   }
 };
 
-export const showGameOverMenu = function () {
+export const showGameOverMenu = function (gameScore) {
   const menu = document.getElementById('gameOverMenu');
   menu.style.zIndex = '1';
   menu.style.visibility = 'visible';
@@ -22,8 +22,17 @@ export const showGameOverMenu = function () {
     menu.style.display = 'block';
   }
 
-  const scoreText = document.getElementById('go_score');
-  scoreText.innerHTML = 'You scored ' + window.game.score + ' points!';
+  const gameScoreEl = document.getElementById('gameScore');
+  gameScoreEl.innerText = gameScore;
+
+  let highScore = localStorage.getItem('highScore');
+  if (highScore <= gameScore) {
+    highScore = gameScore;
+    localStorage.setItem('highScore', highScore);
+  }
+
+  const highScoreEl = document.getElementById('highScore');
+  highScoreEl.innerText = highScore;
 };
 
 export const hideGameOverMenu = function () {
